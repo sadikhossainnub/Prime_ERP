@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     backgroundColor: '#FFFFFF',
+    marginTop: 30,
   },
   logo: {
     width: 120,

@@ -2,8 +2,9 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
+  Button,
   FlatList,
   StyleSheet,
   TouchableOpacity
@@ -20,12 +21,19 @@ const modules: { name: string; label: string; icon: React.ComponentProps<typeof 
 
 export default function ModuleScreen() {
   const router = useRouter();
+  const [selectedModule, setSelectedModule] = useState<string | null>(null);
 
   const handleCardPress = (moduleName: string) => {
-    console.log(`Card pressed: ${moduleName}`);
-    // You can add navigation logic here, for example:
-    // router.push(`/modules/${moduleName.toLowerCase()}`);
+    setSelectedModule(moduleName);
   };
+
+  if (selectedModule) {
+    return (
+      <ThemedView style={styles.container}>
+        <Button title="Back" onPress={() => setSelectedModule(null)} />
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -55,6 +63,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     justifyContent: "center",
+    marginTop: 30,
   },
   title: {
     textAlign: "center",

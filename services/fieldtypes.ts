@@ -1,5 +1,3 @@
-import { apiRequest } from './api';
-
 /**
  * @interface IFieldType
  * @description Represents the structure of a Frappe fieldtype.
@@ -9,11 +7,38 @@ export interface IFieldType {
   // Add other properties as needed
 }
 
+const standardFieldTypeNames: string[] = [
+  'Data',
+  'Long Text',
+  'Code',
+  'Text Editor',
+  'Select',
+  'Link',
+  'Dynamic Link',
+  'Table',
+  'Int',
+  'Float',
+  'Currency',
+  'Percent',
+  'Date',
+  'Datetime',
+  'Time',
+  'Check',
+  'Button',
+  'Read Only',
+  'Password',
+  'Attach',
+  'Attach Image',
+  'Signature',
+  'Color',
+  'Barcode',
+  'Rating',
+];
+
 /**
  * Fetches a list of all field types.
  * @returns A promise that resolves to an array of fieldtype names.
  */
 export const getFieldTypes = async (): Promise<string[]> => {
-  const response = await apiRequest('DocField'); // Assuming 'DocField' is the doctype for field types
-  return response.data.map((d: any) => d.name);
+  return Promise.resolve(standardFieldTypeNames);
 };

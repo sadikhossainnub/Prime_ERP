@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/constants/config';
+import { API_KEY, API_SECRET, BASE_URL } from '@/constants/config';
 import { apiRequest } from './api';
 import { getSession } from './auth';
 
@@ -34,8 +34,18 @@ export const getDoctype = async (doctype: string): Promise<IDocType> => {
  * @returns A promise that resolves to an array of doctype names.
  */
 export const getDoctypes = async (): Promise<string[]> => {
-  const response = await apiRequest('DocType');
-  return response.data.map((d: any) => d.name);
+  const response = await fetch(`${BASE_URL}/api/resource/DocType?limit_page_length=None`, {
+    headers: {
+      'Authorization': `token ${API_KEY}:${API_SECRET}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch doctypes');
+  }
+
+  const data = await response.json();
+  return data.data.map((d: any) => d.name);
 };
 
 /**

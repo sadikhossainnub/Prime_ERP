@@ -1,17 +1,18 @@
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import StyledButton from '@/components/ui/StyledButton';
-import StyledInput from '@/components/ui/StyledInput';
-import { BASE_URL } from '@/constants/config';
-import * as LocalAuthentication from 'expo-local-authentication';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, Image, StyleSheet } from 'react-native';
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import StyledButton from "@/components/ui/StyledButton";
+import StyledInput from "@/components/ui/StyledInput";
+import { BASE_URL } from "@/constants/config";
+import { login } from "@/services/auth";
+import * as LocalAuthentication from "expo-local-authentication";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Alert, Image, StyleSheet } from "react-native";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
 
   useEffect(() => {
@@ -22,27 +23,28 @@ export default function LoginScreen() {
   });
 
   const handleLogin = async () => {
-    console.log('Username:', username);
-    console.log('Password:', password);
     try {
       const response = await fetch(`${BASE_URL}/api/method/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: `usr=${encodeURIComponent(username)}&pwd=${encodeURIComponent(password)}`,
       });
 
       if (response.ok) {
-        Alert.alert('Login Successful', 'Welcome!');
-        router.replace('/(tabs)');
+        const data = await response.json();
+        const cookies = response.headers.get("Set-Cookie");
+        await login(data.full_name, cookies); // Pass cookies to login function
+        Alert.alert("Login Successful", "Welcome!");
+        router.replace("/(tabs)/dashboard");
       } else {
         const errorData = await response.json();
-        Alert.alert('Login Failed', errorData.message || 'Invalid username or password.');
+        Alert.alert("Login Failed", errorData.message || "Invalid username or password.");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert('Login Error', 'An unexpected error occurred. Please try again.');
+      console.error("Login error:", error);
+      Alert.alert("Login Error", "An unexpected error occurred. Please try again.");
     }
   };
 
@@ -61,7 +63,7 @@ export default function LoginScreen() {
     });
 
     if (biometricAuth.success) {
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/dashboard');
     }
   };
 

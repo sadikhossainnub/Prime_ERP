@@ -1,16 +1,7 @@
 {
-  "name": "prime_erp",
-  "main": "expo-router/entry",
+  "name": "Prime ERP",
+  "slug": "Prime_ERP",
   "version": "1.0.0",
-  "scripts": {
-    "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "lint": "expo lint",
-    "generate-version-manifest": "node -e \"const fs = require('fs'); const app = require('./app.json'); const pkg = require('./package.json'); const manifest = { name: app.expo.name, slug: app.expo.slug, version: app.expo.version, dependencies: pkg.dependencies, devDependencies: pkg.devDependencies }; fs.writeFileSync('version-manifest.json', JSON.stringify(manifest, null, 2));\""
-  },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@react-navigation/bottom-tabs": "^7.3.10",
@@ -47,6 +38,5 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
     "typescript": "~5.8.3"
-  },
-  "private": true
+  }
 }

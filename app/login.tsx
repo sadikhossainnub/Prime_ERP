@@ -7,7 +7,6 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet } from 'react-native';
-import CookieManager from 'react-native-cookies';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -23,6 +22,8 @@ export default function LoginScreen() {
   });
 
   const handleLogin = async () => {
+    console.log('Username:', username);
+    console.log('Password:', password);
     try {
       const response = await fetch(`${BASE_URL}/api/method/login`, {
         method: 'POST',
@@ -33,11 +34,6 @@ export default function LoginScreen() {
       });
 
       if (response.ok) {
-        const cookie = response.headers.get('Set-Cookie');
-        if (cookie) {
-          await CookieManager.clearAll();
-          await CookieManager.setFromResponse(BASE_URL, cookie);
-        }
         Alert.alert('Login Successful', 'Welcome!');
         router.replace('/(tabs)');
       } else {

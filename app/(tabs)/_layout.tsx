@@ -40,6 +40,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
+       <Tabs.Screen
+        name="sellingmodulemenu"
+        options={{
+          title: 'Selling Menu',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

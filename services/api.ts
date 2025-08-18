@@ -1,17 +1,13 @@
-import { BASE_URL } from '@/constants/config';
+import { API_KEY, API_SECRET, BASE_URL } from '@/constants/config';
 import { getSession, login, logout } from './auth';
 
 const API_URL = BASE_URL;
 
 export const apiRequest = async (endpoint: string) => {
-  const session = await getSession();
-  if (!session) {
-    throw new Error('Not authenticated');
-  }
-
   const response = await fetch(`${API_URL}/api/resource/${endpoint}`, {
     headers: {
-      "Cookie": `sid=${session.sid}`,
+      "Content-Type": "application/json",
+      "Authorization": `token ${API_KEY}:${API_SECRET}`,
     },
   });
 
@@ -22,18 +18,15 @@ export const apiRequest = async (endpoint: string) => {
   return response.json();
 };
 
+
 export const getDocCount = async (doctype: string) => {
-  const session = await getSession();
-  if (!session) {
-    throw new Error("Not authenticated");
-  }
   const response = await fetch(
     `${API_URL}/api/method/frappe.desk.reportview.get_count`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Cookie: `sid=${session.sid}`,
+        "Authorization": `token ${API_KEY}:${API_SECRET}`,
       },
       body: JSON.stringify({
         doctype: doctype,

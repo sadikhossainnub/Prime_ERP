@@ -1,50 +1,32 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
+import React from 'react';
 import {
-  Button,
   FlatList,
   StyleSheet,
   TouchableOpacity
 } from "react-native";
 
+interface Module {
+  name: string;
+  label: string;
+  icon: IconSymbolName;
+}
 
-const modules: { name: string; label: string; icon: React.ComponentProps<typeof IconSymbol>['name'] }[] = [
-  { name: "Selling", label: "Selling", icon: "cart" },
-  { name: "Stock", label: "Stock", icon: "archive" },
-  { name: "CRM", label: "CRM", icon: "users" },
-  { name: "Accounts", label: "Accounts", icon: "dollar-sign" },
-  { name: "HRM", label: "HRM", icon: "briefcase" },
+const modules: Module[] = [
+  { name: "Quotations", label: "Quotations", icon: "paperplane.fill" },
+  { name: "Orders", label: "Orders", icon: "paperplane.fill" },
+  { name: "Customers", label: "Customers", icon: "users" },
+  { name: "Items", label: "Items", icon: "archive" },
 ];
 
-export default function ModuleScreen() {
-  const router = useRouter();
-  const [selectedModule, setSelectedModule] = useState<string | null>(null);
-
-  const handleCardPress = (moduleName: string) => {
-    console.log("handleCardPress called with moduleName:", moduleName);
-    if (moduleName === "Selling") {
-      console.log("Navigating to /(tabs)/sellingmodulemenu");
-      router.push("/(tabs)/sellingmodulemenu");
-    } else {
-      setSelectedModule(moduleName);
-    }
-  };
-
-  if (selectedModule) {
-    return (
-      <ThemedView style={styles.container}>
-        <Button title="Back" onPress={() => setSelectedModule(null)} />
-      </ThemedView>
-    );
-  }
-
+const SellingModuleMenu = () => {
+  console.log("SellingModuleMenu component rendered");
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title" style={styles.title}>
-        Modules
+        Selling
       </ThemedText>
       <FlatList
         data={modules}
@@ -53,7 +35,7 @@ export default function ModuleScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => handleCardPress(item.name)}
+            onPress={() => {}}
           >
             <IconSymbol name={item.icon} size={40} color="#333" />
             <ThemedText style={styles.cardText}>{item.label}</ThemedText>
@@ -62,7 +44,7 @@ export default function ModuleScreen() {
       />
     </ThemedView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -83,7 +65,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    elevation: 4,
+   elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -96,3 +78,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+export default SellingModuleMenu;

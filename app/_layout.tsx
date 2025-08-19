@@ -1,11 +1,16 @@
 import { ThemedText } from '@/components/ThemedText';
+import { checkForUpdate } from '@/services/update';
 import { Stack } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    checkForUpdate();
+  }, []);
 
   console.log('RootLayoutNav - isLoading:', isLoading, 'user:', user);
 

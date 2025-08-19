@@ -29,7 +29,7 @@ function RootLayoutNav() {
         headerShown: false,
       }}
     >
-      {user && user.sid ? (
+      {user && user.authenticated ? (
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       ) : (
         <Stack.Screen name="auth" options={{ headerShown: false }} />

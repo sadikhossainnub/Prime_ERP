@@ -9,7 +9,7 @@ export default function AuthLayout() {
     return null; // Or a loading screen
   }
 
-  if (user) {
+  if (user && user.authenticated) {
     return <Redirect href="/(tabs)/dashboard" />;
   }
 

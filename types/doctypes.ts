@@ -21,4 +21,13 @@ export interface Doctype {
   allow_copy: number;
   read_only_on_submit: number;
   fetch_if_empty: number;
+  no_copy?: number;
+  in_standard_filter?: number;
+  in_global_search?: number;
+  print_hide?: number;
+  reqd?: number;
+  width?: string;
+  search_index?: number;
+  remember_last_selected_value?: number;
+  bold?: number;
 }

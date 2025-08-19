@@ -41,8 +41,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const fetchFields = async () => {
     try {
       setFieldsLoading(true);
-      const doctypeList = await getDoctypes();
-      console.log('Doctypes:', doctypeList);
+      console.log(`Fetching fields for doctype: ${doctype}`);
 
       const response = await getDoctypeFields(doctype);
       
@@ -52,9 +51,86 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       ).sort((a: any, b: any) => (a.idx || 0) - (b.idx || 0));
       
       setFields(filteredFields);
-    } catch (error) {
+      console.log(`Successfully loaded ${filteredFields.length} fields for ${doctype}`);
+    } catch (error: any) {
       console.error('Failed to fetch doctype fields:', error);
-      Alert.alert('Error', 'Failed to load form fields');
+      
+      let errorMessage = 'Failed to load form fields';
+      if (error?.message) {
+        if (error.message.includes('permission') || error.message.includes('Access denied')) {
+          errorMessage = `Unable to load form fields for ${doctype}. Using basic form fields instead.`;
+          
+          // Try to use basic fields as fallback
+          const basicFields: Doctype[] = [
+            {
+              name: 'name',
+              fieldname: 'name',
+              label: 'Name',
+              fieldtype: 'Data',
+              mandatory: 1,
+              options: '',
+              default: '',
+              read_only: 0,
+              hidden: 0,
+              depends_on: '',
+              description: '',
+              length: 0,
+              precision: '',
+              unique: 0,
+              allow_on_submit: 0,
+              in_list_view: 1,
+              in_print_format: 1,
+              fetch_from: '',
+              collapsible: 0,
+              allow_copy: 1,
+              read_only_on_submit: 0,
+              fetch_if_empty: 0,
+            }
+          ];
+          
+          setFields(basicFields);
+          console.warn(`Using basic fields for ${doctype} due to permission restrictions`);
+          return; // Don't show error alert, just proceed with basic fields
+        } else if (error.message.includes('Network')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
+      }
+      
+      Alert.alert('Error', errorMessage, [
+        {
+          text: 'OK',
+          onPress: () => {
+            // Set basic fields as fallback
+            const fallbackFields: Doctype[] = [
+              {
+                name: 'title',
+                fieldname: 'title',
+                label: 'Title',
+                fieldtype: 'Data',
+                mandatory: 1,
+                options: '',
+                default: '',
+                read_only: 0,
+                hidden: 0,
+                depends_on: '',
+                description: '',
+                length: 0,
+                precision: '',
+                unique: 0,
+                allow_on_submit: 0,
+                in_list_view: 1,
+                in_print_format: 1,
+                fetch_from: '',
+                collapsible: 0,
+                allow_copy: 1,
+                read_only_on_submit: 0,
+                fetch_if_empty: 0,
+              }
+            ];
+            setFields(fallbackFields);
+          }
+        }
+      ]);
     } finally {
       setFieldsLoading(false);
     }
@@ -210,6 +286,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               value={formData[field.fieldname]}
               onChangeValue={updateField}
               error={errors[field.fieldname]}
+              formData={formData}
             />
           ))}
         </View>

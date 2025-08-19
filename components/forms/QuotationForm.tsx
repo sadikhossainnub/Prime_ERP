@@ -1,5 +1,11 @@
-import React from 'react';
-import DynamicForm from './DynamicForm';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { API_KEY, API_SECRET, BASE_URL } from '../../constants/config';
+import { Doctype } from '../../types/doctypes';
+import StyledButton from '../ui/StyledButton';
+import DynamicField from './DynamicField';
+import { ItemRowData } from './ItemRow';
+import ItemTable from './ItemTable';
 
 interface QuotationFormProps {
   onSuccess?: (data?: any) => void;
@@ -8,22 +14,497 @@ interface QuotationFormProps {
   mode?: 'create' | 'edit';
 }
 
+interface FormSection {
+  title: string;
+  fields: Doctype[];
+}
+
 const QuotationForm: React.FC<QuotationFormProps> = ({
   onSuccess,
   onCancel,
   initialData = {},
   mode = 'create'
 }) => {
+  const [fields, setFields] = useState<Doctype[]>([]);
+  const [formData, setFormData] = useState<Record<string, any>>(initialData);
+  const [items, setItems] = useState<ItemRowData[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [fieldsLoading, setFieldsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFields();
+    // Initialize with one empty item if no items in initialData
+    if (initialData.items && Array.isArray(initialData.items)) {
+      setItems(initialData.items);
+    } else {
+      setItems([{
+        item_code: '',
+        item_name: '',
+        description: '',
+        qty: 1,
+        uom: '',
+        rate: 0,
+        amount: 0,
+        warehouse: '',
+      }]);
+    }
+  }, []);
+
+  const fetchFields = () => {
+    setFieldsLoading(true);
+    const quotationFields: Doctype[] = [
+      {
+        "name": "title", "label": "Title", "fieldname": "title", "fieldtype": "Data", "options": "", "default": "{customer_name}",
+        "mandatory": 0, "read_only": 0, "hidden": 1, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 1, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "no_copy": 1, "print_hide": 1
+      },
+      {
+        "name": "party_name", "label": "Party", "fieldname": "party_name", "fieldtype": "Link", "options": "Customer", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "bold": 1, "in_global_search": 1, "in_standard_filter": 1, "print_hide": 1, "search_index": 1
+      },
+      {
+        "name": "customer_name", "label": "Customer Name", "fieldname": "customer_name", "fieldtype": "Data", "options": "", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 1, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "bold": 1, "in_global_search": 1
+      },
+      {
+        "name": "company", "label": "Company", "fieldname": "company", "fieldtype": "Link", "options": "Company", "default": "",
+        "mandatory": 1, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1, "remember_last_selected_value": 1, "reqd": 1, "width": "150px"
+      },
+      {
+        "name": "transaction_date", "label": "Date", "fieldname": "transaction_date", "fieldtype": "Date", "options": "", "default": "Today",
+        "mandatory": 1, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 1, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "no_copy": 1, "in_standard_filter": 1, "reqd": 1, "search_index": 1, "width": "100px"
+      },
+      {
+        "name": "valid_till", "label": "Valid Till", "fieldname": "valid_till", "fieldtype": "Date", "options": "", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
+      },
+      {
+        "name": "order_type", "label": "Order Type", "fieldname": "order_type", "fieldtype": "Select", "options": "\nSales\nMaintenance\nShopping Cart", "default": "Sales",
+        "mandatory": 1, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "in_standard_filter": 1, "print_hide": 1, "reqd": 1
+      },
+      {
+        "name": "customer_address", "label": "Customer Address", "fieldname": "customer_address", "fieldtype": "Link", "options": "Address", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "address_display", "label": "Address", "fieldname": "address_display", "fieldtype": "Small Text", "options": "", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
+      },
+      {
+        "name": "contact_person", "label": "Contact Person", "fieldname": "contact_person", "fieldtype": "Link", "options": "Contact", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "contact_display", "label": "Contact", "fieldname": "contact_display", "fieldtype": "Small Text", "options": "", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "in_global_search": 1
+      },
+      {
+        "name": "contact_mobile", "label": "Mobile No", "fieldname": "contact_mobile", "fieldtype": "Small Text", "options": "Phone", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
+      },
+      {
+        "name": "contact_email", "label": "Contact Email", "fieldname": "contact_email", "fieldtype": "Data", "options": "Email", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 1, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "col_break98", "label": "", "fieldname": "col_break98", "fieldtype": "Column Break", "options": "", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "eval:doc.party_name", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "width": "50%"
+      },
+      {
+        "name": "shipping_address_name", "label": "Shipping Address", "fieldname": "shipping_address_name", "fieldtype": "Link", "options": "Address", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "shipping_address", "label": "Shipping Address", "fieldname": "shipping_address", "fieldtype": "Small Text", "options": "", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "customer_group", "label": "Customer Group", "fieldname": "customer_group", "fieldtype": "Link", "options": "Customer Group", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 1, "depends_on": "eval:doc.party_name", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "territory", "label": "Territory", "fieldname": "territory", "fieldtype": "Link", "options": "Territory", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "total_qty", "label": "Total Quantity", "fieldname": "total_qty", "fieldtype": "Float", "options": "", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
+      },
+      {
+        "name": "total", "label": "Total", "fieldname": "total", "fieldtype": "Currency", "options": "currency", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
+      },
+      {
+        "name": "net_total", "label": "Net Total", "fieldname": "net_total", "fieldtype": "Currency", "options": "currency", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "base_rounding_adjustment", "label": "Rounding Adjustment (Company Currency)", "fieldname": "base_rounding_adjustment", "fieldtype": "Currency", "options": "Company:company:default_currency", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "eval:!doc.disable_rounded_total", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "no_copy": 1, "print_hide": 1
+      },
+      {
+        "name": "base_in_words", "label": "In Words (Company Currency)", "fieldname": "base_in_words", "fieldtype": "Data", "options": "", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 240, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
+      },
+      {
+        "name": "grand_total", "label": "Grand Total", "fieldname": "grand_total", "fieldtype": "Currency", "options": "currency", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 1, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "width": "200px"
+      },
+      {
+        "name": "rounding_adjustment", "label": "Rounding Adjustment", "fieldname": "rounding_adjustment", "fieldtype": "Currency", "options": "currency", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "eval:!doc.disable_rounded_total", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "no_copy": 1, "print_hide": 1
+      },
+      {
+        "name": "rounded_total", "label": "Rounded Total", "fieldname": "rounded_total", "fieldtype": "Currency", "options": "currency", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "bold": 1, "width": "200px"
+      },
+      {
+        "name": "in_words", "label": "In Words", "fieldname": "in_words", "fieldtype": "Data", "options": "", "default": "",
+        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 240, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1, "width": "200px"
+      },
+      {
+        "name": "terms", "label": "Term Details", "fieldname": "terms", "fieldtype": "Text Editor", "options": "", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
+      }
+    ] as Doctype[];
+    const filteredFields = quotationFields.filter((field: Doctype) =>
+      !['name', 'owner', 'creation', 'modified', 'modified_by', 'docstatus', 'idx', 'items'].includes(field.fieldname) &&
+      !field.fieldname.startsWith('item_') // Exclude item-related fields
+    ).sort((a: any, b: any) => (a.idx || 0) - (b.idx || 0));
+    
+    setFields(filteredFields);
+    setFieldsLoading(false);
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // Validate regular form fields
+    fields.forEach(field => {
+      if (field.mandatory === 1) {
+        const value = formData[field.fieldname];
+        if (!value || (typeof value === 'string' && !value.trim())) {
+          newErrors[field.fieldname] = `${field.label} is required`;
+        }
+      }
+    });
+
+    // Validate items
+    if (items.length === 0) {
+      newErrors['items'] = 'At least one item is required';
+    } else {
+      items.forEach((item, index) => {
+        if (!item.item_code) {
+          newErrors[`item_${index}_code`] = `Item ${index + 1}: Item code is required`;
+        }
+        if (!item.qty || item.qty <= 0) {
+          newErrors[`item_${index}_qty`] = `Item ${index + 1}: Quantity must be greater than 0`;
+        }
+        if (item.rate === undefined || item.rate < 0) {
+          newErrors[`item_${index}_rate`] = `Item ${index + 1}: Rate must be greater than or equal to 0`;
+        }
+      });
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      Alert.alert('Validation Error', 'Please fix the errors in the form');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Prepare data with items
+      const submissionData = {
+        ...formData,
+        items: items.map(item => ({
+          item_code: item.item_code,
+          item_name: item.item_name,
+          description: item.description,
+          qty: item.qty,
+          uom: item.uom,
+          rate: item.rate,
+          amount: item.amount,
+          warehouse: item.warehouse,
+        }))
+      };
+
+      const endpoint = mode === 'create' ? 'Quotation' : `Quotation/${initialData.name || formData.name}`;
+      const method = mode === 'create' ? 'POST' : 'PUT';
+      
+      const response = await fetch(`${BASE_URL}/api/resource/${endpoint}`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${API_KEY}:${API_SECRET}`,
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${mode} Quotation`);
+      }
+
+      const responseData = await response.json();
+
+      Alert.alert(
+        'Success',
+        `Quotation ${mode === 'create' ? 'created' : 'updated'} successfully!`,
+        [{ text: 'OK', onPress: () => onSuccess?.(responseData.data) }]
+      );
+    } catch (error) {
+      console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} Quotation:`, error);
+      Alert.alert('Error', `Failed to ${mode} Quotation. Please try again.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateField = (fieldname: string, value: any) => {
+    setFormData(prev => ({ ...prev, [fieldname]: value }));
+    
+    // Clear error for this field
+    if (errors[fieldname]) {
+      setErrors(prev => ({ ...prev, [fieldname]: '' }));
+    }
+  };
+
+  const handleItemsChange = (updatedItems: ItemRowData[]) => {
+    setItems(updatedItems);
+    
+    // Clear item-related errors
+    const newErrors = { ...errors };
+    Object.keys(newErrors).forEach(key => {
+      if (key.startsWith('item_') || key === 'items') {
+        delete newErrors[key];
+      }
+    });
+    setErrors(newErrors);
+  };
+
+  const groupFieldsIntoSections = (fields: Doctype[]): FormSection[] => {
+    const sections: FormSection[] = [];
+    let currentSection: FormSection | null = null;
+    
+    fields.forEach(field => {
+      let sectionTitle = 'General Information';
+      
+      if (field.fieldname.includes('address') || field.fieldname.includes('contact')) {
+        sectionTitle = 'Address & Contact';
+      } else if (field.fieldname.includes('tax') || field.fieldname.includes('discount') ||
+                 field.fieldname.includes('currency') || field.fieldname.includes('price')) {
+        sectionTitle = 'Pricing & Tax';
+      } else if (field.fieldname.includes('terms') || field.fieldname.includes('note')) {
+        sectionTitle = 'Terms & Conditions';
+      }
+
+      if (!currentSection || currentSection.title !== sectionTitle) {
+        currentSection = { title: sectionTitle, fields: [] };
+        sections.push(currentSection);
+      }
+      
+      currentSection.fields.push(field);
+    });
+
+    return sections;
+  };
+
+  if (fieldsLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading form...</Text>
+      </View>
+    );
+  }
+
+  const sections = groupFieldsIntoSections(fields);
+  const generalInfoSection = sections.find(sec => sec.title === 'General Information');
+  const otherSections = sections.filter(sec => sec.title !== 'General Information');
+
   return (
-    <DynamicForm
-      doctype="Quotation"
-      initialData={initialData}
-      mode={mode}
-      onSuccess={onSuccess}
-      onCancel={onCancel}
-      title={mode === 'create' ? 'Create Quotation' : 'Edit Quotation'}
-    />
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Text style={styles.title}>
+        {mode === 'create' ? 'Create Quotation' : 'Edit Quotation'}
+      </Text>
+
+      {/* General Information Section */}
+      {generalInfoSection && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{generalInfoSection.title}</Text>
+          {generalInfoSection.fields.map((field) => (
+            <DynamicField
+              key={field.fieldname}
+              field={field}
+              value={formData[field.fieldname]}
+              onChangeValue={updateField}
+              error={errors[field.fieldname]}
+              formData={formData}
+            />
+          ))}
+        </View>
+      )}
+
+      {/* Items Section */}
+      <View style={styles.section}>
+        <ItemTable
+          items={items}
+          onItemsChange={handleItemsChange}
+          editable={true}
+          showTotals={true}
+        />
+        {errors['items'] && <Text style={styles.errorText}>{errors['items']}</Text>}
+      </View>
+
+      {/* Other Form Sections */}
+      {otherSections.map((section, index) => (
+        <View key={index} style={styles.section}>
+          <Text style={styles.sectionTitle}>{section.title}</Text>
+          {section.fields.map((field) => (
+            <DynamicField
+              key={field.fieldname}
+              field={field}
+              value={formData[field.fieldname]}
+              onChangeValue={updateField}
+              error={errors[field.fieldname]}
+              formData={formData}
+            />
+          ))}
+        </View>
+      ))}
+
+      {/* Submit Buttons */}
+      <View style={styles.buttonContainer}>
+        <StyledButton
+          title={loading ? 'Processing...' : (mode === 'create' ? 'Create Quotation' : 'Update Quotation')}
+          onPress={handleSubmit}
+          style={[styles.submitButton, loading && styles.disabledButton]}
+        />
+        
+        {onCancel && (
+          <StyledButton
+            title="Cancel"
+            onPress={onCancel}
+            style={styles.cancelButton}
+            textStyle={styles.cancelButtonText}
+          />
+        )}
+      </View>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  contentContainer: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 24,
+    textAlign: 'center',
+    color: '#333',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
+    color: '#333',
+  },
+  errorText: {
+    color: '#ff4757',
+    fontSize: 14,
+    marginTop: 4,
+  },
+  buttonContainer: {
+    marginTop: 20,
+    gap: 12,
+  },
+  submitButton: {
+    backgroundColor: '#007BFF',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
+  cancelButton: {
+    backgroundColor: '#6c757d',
+  },
+  cancelButtonText: {
+    color: '#fff',
+  },
+});
 
 export default QuotationForm;

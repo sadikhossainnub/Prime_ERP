@@ -1,14 +1,13 @@
-import { API_KEY, API_SECRET, BASE_URL } from '@/constants/config';
-import { getSession, login, logout } from './auth';
+import { BASE_URL } from '@/constants/config';
+import { getAuthHeaders } from './authHeaders';
 
 const API_URL = BASE_URL;
 
 export const apiRequest = async (endpoint: string) => {
+  const headers = await getAuthHeaders();
+
   const response = await fetch(`${API_URL}/api/resource/${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `token ${API_KEY}:${API_SECRET}`,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -20,14 +19,13 @@ export const apiRequest = async (endpoint: string) => {
 
 
 export const getDocCount = async (doctype: string) => {
+  const headers = await getAuthHeaders();
+
   const response = await fetch(
     `${API_URL}/api/method/frappe.desk.reportview.get_count`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `token ${API_KEY}:${API_SECRET}`,
-      },
+      headers,
       body: JSON.stringify({
         doctype: doctype,
       }),
@@ -42,51 +40,44 @@ export const getDocCount = async (doctype: string) => {
 
 const api = {
   login: async (email: string, password: string) => {
-    const response = await fetch(`${API_URL}/api/method/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        usr: email,
-        pwd: password,
-      }),
-    });
+    // Using API token authentication - no session needed
+    // Just validate that we have valid API credentials by testing a simple API call
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${API_URL}/api/method/frappe.auth.get_logged_user`, {
+        method: 'GET',
+        headers,
+      });
 
-    if (!response.ok) {
-      throw new Error('Login failed');
+      if (!response.ok) {
+        throw new Error('API authentication failed - please check API credentials');
+      }
+
+      const data = await response.json();
+      
+      // Return user data based on API token validation
+      return {
+        email: email,
+        name: data.message || email,
+        full_name: data.message || email,
+        authenticated: true,
+      };
+    } catch (error) {
+      console.error('Token-based authentication failed:', error);
+      throw new Error('Login failed - API token authentication error');
     }
-
-    const data = await response.json();
-    
-    // Extract cookies from response headers
-    const cookies = response.headers.get('Set-Cookie') || '';
-    
-    // Prepare user data for session
-    const userData = {
-      ...data,
-      email: email,
-      cookies: cookies,
-    };
-    
-    await login(userData);
-    return userData;
   },
 
   logout: async () => {
-    await logout();
+    // No session to clear with token authentication
+    return Promise.resolve();
   },
 
   getDashboardData: async () => {
-    const session = await getSession();
-    if (!session) {
-      throw new Error('Not authenticated');
-    }
+    const headers = await getAuthHeaders();
 
     const response = await fetch(`${API_URL}/api/resource/Dashboard`, {
-      headers: {
-        "Cookie": `sid=${session.sid}`,
-      },
+      headers,
     });
 
     if (!response.ok) {
@@ -95,6 +86,7 @@ const api = {
 
     return response.json();
   },
+  
   forgetPassword: async (email: string) => {
     const response = await fetch(`${API_URL}/api/method/frappe.core.doctype.user.user.reset_password`, {
       method: 'POST',

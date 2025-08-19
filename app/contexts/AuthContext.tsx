@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import api from '../../services/api';
-import { getSession } from '../../services/auth';
 
 interface AuthContextProps {
   user: any;
@@ -11,50 +10,31 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps>({
   user: null,
-  isLoading: true,
+  isLoading: false,
   login: async (email: string, password: string) => { },
   logout: async () => { },
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadSession = async () => {
-      try {
-        console.log('Loading session...');
-        const session = await getSession();
-        console.log('Session loaded:', session);
-        
-        // Validate session has required fields
-        if (session && session.sid && session.email) {
-          console.log('Valid session found, setting user');
-          setUser(session);
-        } else {
-          console.log('No valid session found, user will be null');
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Error loading session:', error);
-        setUser(null);
-      } finally {
-        console.log('Setting loading to false, user state:', user);
-        setIsLoading(false);
-      }
-    };
-
-    loadSession();
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const userData = await api.login(email, password);
-      setUser(userData);
+      // Set user data for UI purposes - using token authentication
+      setUser({
+        email: email,
+        name: userData.name || userData.full_name || email,
+        full_name: userData.full_name || userData.name || email,
+        authenticated: true,
+        authMethod: 'token', // Indicate we're using token auth
+      });
+      console.log('Token-based authentication successful');
     } catch (error) {
-      console.error('Login failed:', error);
-      // Handle login error (e.g., display an error message)
+      console.error('Token-based login failed:', error);
+      throw error; // Re-throw to let UI handle the error
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
     } catch (error) {
       console.error('Logout failed:', error);
-      // Handle logout error (e.g., display an error message)
+      // Clear user even if logout API fails
+      setUser(null);
     } finally {
       setIsLoading(false);
     }

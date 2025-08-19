@@ -1,5 +1,5 @@
-import { API_KEY, API_SECRET, BASE_URL } from '@/constants/config';
-import { getSession } from './auth';
+import { BASE_URL } from '@/constants/config';
+import { getAuthHeaders } from './authHeaders';
 
 const API_URL = BASE_URL;
 
@@ -19,75 +19,41 @@ export interface UserProfile {
 }
 
 export const getUserProfile = async (): Promise<UserProfile> => {
-  const session = await getSession();
-  if (!session) {
-    throw new Error('Not authenticated');
-  }
+  try {
+    const headers = await getAuthHeaders();
 
-  // Try multiple endpoints for better compatibility
-  const endpoints = [
-    '/api/method/frappe.auth.get_logged_user',
-    '/api/method/frappe.core.doctype.user.user.get_user_info',
-    `/api/resource/User/${session.name || session.email}`
-  ];
+    const response = await fetch(`${API_URL}/api/method/frappe.auth.get_logged_user`, {
+      method: 'GET',
+      headers,
+    });
 
-  let lastError: Error | null = null;
-
-  for (const endpoint of endpoints) {
-    try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `token ${API_KEY}:${API_SECRET}`,
-          'Cookie': `sid=${session.sid}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Handle different response structures
-        if (endpoint.includes('/resource/User/')) {
-          return data.data;
-        } else {
-          return data.message || data;
-        }
-      } else {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-    } catch (error) {
-      console.log(`Failed to fetch from ${endpoint}:`, error);
-      lastError = error as Error;
-      continue;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API response error:', errorText);
+      throw new Error(`Failed to fetch current user info: HTTP ${response.status}`);
     }
-  }
 
-  // If all endpoints fail, return session data as fallback
-  if (session) {
+    const data = await response.json();
+    console.log('API response data:', data);
+    return data.message || data;
+  } catch (error) {
+    console.error('Error fetching current user info:', error);
+    // Fallback for API token authentication
     return {
-      name: session.name || session.email,
-      email: session.email,
-      full_name: session.full_name || session.name || 'Unknown User',
+      name: 'API User',
+      email: 'api@system.local',
+      full_name: 'API Token User',
     };
   }
-
-  throw lastError || new Error('Failed to fetch user profile from all endpoints');
 };
 
 export const updateUserProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
-  const session = await getSession();
-  if (!session) {
-    throw new Error('Not authenticated');
-  }
+  const headers = await getAuthHeaders();
 
-  const userName = session.name || session.email;
-  const response = await fetch(`${API_URL}/api/resource/User/${userName}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `token ${API_KEY}:${API_SECRET}`,
-      'Cookie': `sid=${session.sid}`,
-    },
+  // For API token authentication, we'll use a generic approach
+  const response = await fetch(`${API_URL}/api/resource/User`, {
+    method: 'POST',
+    headers,
     body: JSON.stringify(profileData),
   });
 
@@ -100,19 +66,12 @@ export const updateUserProfile = async (profileData: Partial<UserProfile>): Prom
 };
 
 export const getCurrentUserInfo = async (): Promise<UserProfile> => {
-  const session = await getSession();
-  if (!session) {
-    throw new Error('Not authenticated');
-  }
-
   try {
+    const headers = await getAuthHeaders();
+
     const response = await fetch(`${API_URL}/api/method/frappe.auth.get_logged_user`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `token ${API_KEY}:${API_SECRET}`,
-        'Cookie': `sid=${session.sid}`,
-      },
+      headers,
     });
 
     if (!response.ok) {
@@ -123,11 +82,11 @@ export const getCurrentUserInfo = async (): Promise<UserProfile> => {
     return data.message || data;
   } catch (error) {
     console.error('Error fetching current user info:', error);
-    // Fallback to session data
+    // Fallback for API token authentication
     return {
-      name: session.name || session.email,
-      email: session.email,
-      full_name: session.full_name || session.name || 'Unknown User',
+      name: 'user.name',
+      email: 'user.emil',
+      full_name: 'user.full_name',
     };
   }
 };

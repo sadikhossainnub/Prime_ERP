@@ -2,14 +2,15 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import StyledButton from "@/components/ui/StyledButton";
 import StyledInput from "@/components/ui/StyledInput";
-import api from "@/services/api";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, Image, StyleSheet } from "react-native";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
@@ -23,7 +24,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      const userData = await api.login(username, password);
+      await login(username, password);
       Alert.alert("Login Successful", "Welcome!");
       router.replace("/(tabs)/dashboard");
     } catch (error: any) {
@@ -47,6 +48,7 @@ export default function LoginScreen() {
     });
 
     if (biometricAuth.success) {
+      // For API token authentication, we can bypass login and go directly to dashboard
       router.replace('/(tabs)/dashboard');
     }
   };

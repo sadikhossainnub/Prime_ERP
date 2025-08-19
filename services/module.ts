@@ -1,4 +1,5 @@
-import { API_KEY, API_SECRET, BASE_URL } from "@/constants/config";
+import { BASE_URL } from "@/constants/config";
+import { getAuthHeaders } from "./authHeaders";
 
 interface Module {
   name: string;
@@ -7,12 +8,12 @@ interface Module {
 
 // Module data
 export const getModuleData = async (): Promise<Module[]> => {
+  const headers = await getAuthHeaders();
+
   const response = await fetch(
     `${BASE_URL}/api/resource/Module%20Def?limit_page_length=None`,
     {
-      headers: {
-        Authorization: `token ${API_KEY}:${API_SECRET}`,
-      },
+      headers,
     }
   );
 

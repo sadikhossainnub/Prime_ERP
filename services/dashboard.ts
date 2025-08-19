@@ -1,10 +1,9 @@
 import { apiRequest, getDocCount } from "./api";
-import { getSession } from "./auth";
 
 // Dashboard data
 export const getDashboardData = async () => {
-  const session = await getSession();
-  const filters = session ? `&filters=[["owner","=","${session.fullName}"]]` : "";
+  // Remove session-based filtering for API token authentication
+  const filters = "";
 
   const [
     salesOrders,

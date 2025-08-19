@@ -1,13 +1,18 @@
+import { ItemRowData } from '@/components/forms/ItemRow';
 import { apiRequest } from '@/services/api';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface Quotation {
   name: string;
   customer_name: string;
+  items: ItemRowData[];
   grand_total: number;
   status: string;
+    transaction_date: string;
+  valid_till: string;
+  td_date: string;
 }
 
 const QuotationListScreen = () => {
@@ -19,10 +24,15 @@ const QuotationListScreen = () => {
   useEffect(() => {
     const fetchQuotations = async () => {
       try {
-        const response = await apiRequest('Quotation?fields=["name", "customer_name", "grand_total", "status"]');
+        const fields = JSON.stringify([
+          "name", "customer_name", "grand_total", "status", "transaction_date", "valid_till", "td_date"
+        ]);
+        const endpoint = `Quotation?fields=${encodeURIComponent(fields)}`;
+        const response = await apiRequest(endpoint);
         setQuotations(response.data);
       } catch (error) {
         console.error('Failed to fetch quotations:', error);
+        Alert.alert('Error', 'Failed to fetch quotations. Please check your connection and try again.');
       }
     };
 
@@ -62,6 +72,9 @@ const QuotationListScreen = () => {
             <Text style={styles.cardTitle}>Name: {item.name}</Text>
             <Text style={styles.cardText}>Customer: {item.customer_name}</Text>
             <Text style={styles.cardText}>Total: {item.grand_total}</Text>
+            <Text style={styles.cardText}>Date: {item.transaction_date}</Text>
+            <Text style={styles.cardText}>Valid Till: {item.valid_till}</Text>
+            <Text style={styles.cardText}>TD Date: {item.td_date}</Text>
             <Text style={[styles.cardText, styles.statusStyle, { color: item.status === 'Draft' ? 'gray' : item.status === 'Submitted' ? 'blue' : 'green' }]}>
               Status: {item.status}
             </Text>

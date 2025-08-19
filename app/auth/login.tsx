@@ -3,7 +3,6 @@ import { ThemedView } from "@/components/ThemedView";
 import StyledButton from "@/components/ui/StyledButton";
 import StyledInput from "@/components/ui/StyledInput";
 import api from "@/services/api";
-import { login } from "@/services/auth";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -25,8 +24,6 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       const userData = await api.login(username, password);
-      const cookies = userData.home_page;
-      await login(userData.full_name, cookies);
       Alert.alert("Login Successful", "Welcome!");
       router.replace("/(tabs)/dashboard");
     } catch (error: any) {

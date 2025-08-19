@@ -41,6 +41,19 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ focused, color, size }) => (
+            <Icon
+              name={focused ? 'account' : 'account-outline'}
+              size={size + 4}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="sellingmodulemenu"
         options={{
           href: null, // Hide from tab bar

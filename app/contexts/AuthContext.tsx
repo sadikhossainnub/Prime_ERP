@@ -22,15 +22,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const loadSession = async () => {
-      setIsLoading(true);
       try {
+        console.log('Loading session...');
         const session = await getSession();
-        if (session) {
+        console.log('Session loaded:', session);
+        
+        // Validate session has required fields
+        if (session && session.sid && session.email) {
+          console.log('Valid session found, setting user');
           setUser(session);
+        } else {
+          console.log('No valid session found, user will be null');
+          setUser(null);
         }
       } catch (error) {
         console.error('Error loading session:', error);
+        setUser(null);
       } finally {
+        console.log('Setting loading to false, user state:', user);
         setIsLoading(false);
       }
     };

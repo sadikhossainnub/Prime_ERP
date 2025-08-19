@@ -1,6 +1,7 @@
 import { apiRequest } from '@/services/api';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface Order {
   name: string;
@@ -9,6 +10,7 @@ interface Order {
 }
 
 const OrderListScreen = () => {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -36,7 +38,15 @@ const OrderListScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Order List</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Order List</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => router.push('/(tabs)/salesorderform')}
+        >
+          <Text style={styles.addButtonText}>+ Add Order</Text>
+        </TouchableOpacity>
+      </View>
       <TextInput
         style={styles.searchInput}
         placeholder="Search Orders"
@@ -66,11 +76,27 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 30,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
+    flex: 1,
+  },
+  addButton: {
+    backgroundColor: '#007BFF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   card: {
     backgroundColor: '#fff',

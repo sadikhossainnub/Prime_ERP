@@ -58,8 +58,19 @@ const api = {
     }
 
     const data = await response.json();
-    await login(data.full_name, data.home_page);
-    return data;
+    
+    // Extract cookies from response headers
+    const cookies = response.headers.get('Set-Cookie') || '';
+    
+    // Prepare user data for session
+    const userData = {
+      ...data,
+      email: email,
+      cookies: cookies,
+    };
+    
+    await login(userData);
+    return userData;
   },
 
   logout: async () => {

@@ -22,41 +22,62 @@ const SellingModuleMenu = () => {
       */}
 
       {/* Item List */}
-      {/*
+      
       <Link href="/(tabs)/itemlist" asChild>
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuItemText}>Item List</Text>
         </TouchableOpacity>
       </Link>
-      */}
+      
 
       {/* Order List */}
-      {/*
+      
       <Link href="/(tabs)/orderlist" asChild>
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuItemText}>Order List</Text>
         </TouchableOpacity>
       </Link>
-      */}
+      
 
       {/* Customer List */}
-      {/*
+      
       <Link href="/(tabs)/customerlist" asChild>
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuItemText}>Customer List</Text>
         </TouchableOpacity>
       </Link>
-      */}
+      
 
       {/* Quotation List */}
-      {/*
+      
       <Link href="/(tabs)/quotationlist" asChild>
         <TouchableOpacity style={styles.menuItem}>
           <Text style={styles.menuItemText}>Quotation List</Text>
         </TouchableOpacity>
       </Link>
-      */}
+      
 
+      
+      <Link href="/(tabs)/customerform" asChild>
+        <TouchableOpacity style={styles.menuItem}>
+          <Text style={styles.menuItemText}>Customer Form</Text>
+        </TouchableOpacity>
+      </Link>
+      <Link href="/(tabs)/itemform" asChild>
+        <TouchableOpacity style={styles.menuItem}>
+          <Text style={styles.menuItemText}>Item Form</Text>
+        </TouchableOpacity>
+      </Link>
+      <Link href="/(tabs)/quotationform" asChild>
+        <TouchableOpacity style={styles.menuItem}>
+          <Text style={styles.menuItemText}>Quotation Form</Text>
+        </TouchableOpacity>
+      </Link>
+      <Link href="/(tabs)/salesorderform" asChild>
+        <TouchableOpacity style={styles.menuItem}>
+          <Text style={styles.menuItemText}>Sales Order Form</Text>
+        </TouchableOpacity>
+      </Link>
       {/* Module */}
       <Link href="/(tabs)/Module" asChild>
         <TouchableOpacity style={styles.menuItem}>

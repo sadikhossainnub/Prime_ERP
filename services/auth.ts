@@ -2,15 +2,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SESSION_KEY = "user_session";
 
-export const login = async (fullName: string, cookies: string | null) => {
-  if (!cookies) return; // Or handle the error appropriately
-
-  // Parse cookies to extract sid and system_user
-  const sid = cookies.match(/sid=([^;]+)/)?.[1];
-  const systemUser = cookies.match(/system_user=([^;]+)/)?.[1];
+export const login = async (userData: any) => {
+  // Extract cookies from the response headers if available
+  const cookies = userData.cookies || '';
+  const sid = cookies.match(/sid=([^;]+)/)?.[1] || userData.sid;
+  const systemUser = cookies.match(/system_user=([^;]+)/)?.[1] || userData.system_user;
 
   const session = {
-    fullName,
+    name: userData.name || userData.email,
+    email: userData.email,
+    full_name: userData.full_name,
     sid,
     system_user: systemUser,
   };

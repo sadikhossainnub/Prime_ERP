@@ -1,12 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   StyleSheet,
   Text,
   TextStyle,
   View,
-  ViewStyle,
+  ViewStyle
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { BASE_URL } from '../../constants/config';
@@ -169,12 +169,12 @@ const LinkField: React.FC<LinkFieldProps> = ({
             <Text style={styles.inputText}>
               {(selectedItem && (selectedItem.title || selectedItem.customer_name || selectedItem.supplier_name || selectedItem.item_name || selectedItem.name)) || buttonText}
             </Text>
-            <Text style={styles.dropdownIcon}>{isOpened ? '▲' : '▼'}</Text>
+            <Ionicons name={isOpened ? "chevron-up" : "chevron-down"} style={styles.dropdownIcon} />
           </View>
         )}
         renderItem={(item, index, isSelected) => (
-          <View style={{ ...styles.rowStyle, ...(isSelected && { backgroundColor: '#c5c5c5' }) }}>
-            <Text style={styles.rowTextStyle}>{item.name} - {item.title}</Text>
+          <View style={[styles.rowStyle, isSelected && styles.rowSelected]}>
+            <Text style={[styles.rowTextStyle, isSelected && styles.rowTextSelected]}>{item.name} - {item.title}</Text>
           </View>
         )}
         dropdownStyle={styles.dropdownStyle}
@@ -184,9 +184,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
         searchInputTxtColor={'#151E26'}
         searchPlaceHolder={'Search here'}
         searchPlaceHolderColor={'#999'}
-        renderSearchInputLeftIcon={() => {
-          return <ActivityIndicator />;
-        }}
+        renderSearchInputLeftIcon={() => <Ionicons name="search" style={styles.searchIcon} />}
         onFocus={() => fetchOptions('')}
         onChangeSearchInputText={(text) => fetchOptions(text)}
       />
@@ -201,15 +199,15 @@ interface Styles {
   inputError: ViewStyle;
   inputDisabled: ViewStyle;
   inputText: TextStyle;
-  placeholderText: TextStyle;
-  clearButton: ViewStyle;
-  clearButtonText: TextStyle;
   dropdownIcon: TextStyle;
   dropdownStyle: ViewStyle;
   rowStyle: ViewStyle;
+  rowSelected: ViewStyle;
   rowTextStyle: TextStyle;
+  rowTextSelected: TextStyle;
   errorText: TextStyle;
   searchInput: ViewStyle;
+  searchIcon: TextStyle;
 }
 
 const styles = StyleSheet.create<Styles>({
@@ -222,65 +220,73 @@ const styles = StyleSheet.create<Styles>({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    minHeight: 48,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    minHeight: 52,
     width: '100%',
   },
   inputError: {
-    borderColor: '#FF3B30',
+    borderColor: '#D32F2F',
   },
   inputDisabled: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F5F5F5',
   },
   inputText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
-  },
-  placeholderText: {
-    color: '#999',
-  },
-  clearButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  clearButtonText: {
-    fontSize: 20,
-    color: '#999',
+    color: '#212121',
   },
   dropdownIcon: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: 20,
+    color: '#757575',
     marginLeft: 8,
   },
   dropdownStyle: {
-    backgroundColor: '#EFEFEF',
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   rowStyle: {
-    backgroundColor: '#EFEFEF',
-    borderBottomColor: '#C5C5C5',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  rowSelected: {
+    backgroundColor: '#E3F2FD',
   },
   rowTextStyle: {
-    color: '#444',
+    color: '#424242',
     textAlign: 'left',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    fontSize: 16,
+  },
+  rowTextSelected: {
+    color: '#1565C0',
+    fontWeight: '500',
   },
   errorText: {
-    color: '#FF3B30',
-    fontSize: 14,
-    marginTop: 4,
+    color: '#D32F2F',
+    fontSize: 13,
+    marginTop: 6,
+    marginLeft: 4,
   },
   searchInput: {
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    borderWidth: 0,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 8,
-    marginBottom: 12,
+    margin: 8,
+  },
+  searchIcon: {
+    fontSize: 18,
+    color: '#757575',
+    marginRight: 8,
   },
 });
 

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { API_KEY, API_SECRET, BASE_URL } from '../../constants/config';
@@ -73,12 +74,6 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "bold": 1, "in_global_search": 1
       },
       {
-        "name": "company", "label": "Company", "fieldname": "company", "fieldtype": "Link", "options": "Company", "default": "",
-        "mandatory": 1, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1, "remember_last_selected_value": 1, "reqd": 1, "width": "150px"
-      },
-      {
         "name": "transaction_date", "label": "Date", "fieldname": "transaction_date", "fieldtype": "Date", "options": "", "default": "Today",
         "mandatory": 1, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
         "unique": 0, "allow_on_submit": 0, "in_list_view": 1, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
@@ -91,70 +86,16 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
       },
       {
+        "name": "td_date", "label": "Tentative Delivery Date", "fieldname": "td_date", "fieldtype": "Date", "options": "", "default": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
+        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
+      },
+      {
         "name": "order_type", "label": "Order Type", "fieldname": "order_type", "fieldtype": "Select", "options": "\nSales\nMaintenance\nShopping Cart", "default": "Sales",
         "mandatory": 1, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
         "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "in_standard_filter": 1, "print_hide": 1, "reqd": 1
-      },
-      {
-        "name": "customer_address", "label": "Customer Address", "fieldname": "customer_address", "fieldtype": "Link", "options": "Address", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
-        "name": "address_display", "label": "Address", "fieldname": "address_display", "fieldtype": "Small Text", "options": "", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
-      },
-      {
-        "name": "contact_person", "label": "Contact Person", "fieldname": "contact_person", "fieldtype": "Link", "options": "Contact", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
-        "name": "contact_display", "label": "Contact", "fieldname": "contact_display", "fieldtype": "Small Text", "options": "", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "in_global_search": 1
-      },
-      {
-        "name": "contact_mobile", "label": "Mobile No", "fieldname": "contact_mobile", "fieldtype": "Small Text", "options": "Phone", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
-      },
-      {
-        "name": "contact_email", "label": "Contact Email", "fieldname": "contact_email", "fieldtype": "Data", "options": "Email", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 1, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
-        "name": "col_break98", "label": "", "fieldname": "col_break98", "fieldtype": "Column Break", "options": "", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "eval:doc.party_name", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "width": "50%"
-      },
-      {
-        "name": "shipping_address_name", "label": "Shipping Address", "fieldname": "shipping_address_name", "fieldtype": "Link", "options": "Address", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
-        "name": "shipping_address", "label": "Shipping Address", "fieldname": "shipping_address", "fieldtype": "Small Text", "options": "", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
-        "name": "customer_group", "label": "Customer Group", "fieldname": "customer_group", "fieldtype": "Link", "options": "Customer Group", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 1, "depends_on": "eval:doc.party_name", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
       },
       {
         "name": "territory", "label": "Territory", "fieldname": "territory", "fieldtype": "Link", "options": "Territory", "default": "",
@@ -169,58 +110,16 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
       },
       {
-        "name": "total", "label": "Total", "fieldname": "total", "fieldtype": "Currency", "options": "currency", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
-      },
-      {
-        "name": "net_total", "label": "Net Total", "fieldname": "net_total", "fieldtype": "Currency", "options": "currency", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
-        "name": "base_rounding_adjustment", "label": "Rounding Adjustment (Company Currency)", "fieldname": "base_rounding_adjustment", "fieldtype": "Currency", "options": "Company:company:default_currency", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "eval:!doc.disable_rounded_total", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "no_copy": 1, "print_hide": 1
-      },
-      {
-        "name": "base_in_words", "label": "In Words (Company Currency)", "fieldname": "base_in_words", "fieldtype": "Data", "options": "", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 240, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
         "name": "grand_total", "label": "Grand Total", "fieldname": "grand_total", "fieldtype": "Currency", "options": "currency", "default": "",
         "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
         "unique": 0, "allow_on_submit": 0, "in_list_view": 1, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "width": "200px"
       },
       {
-        "name": "rounding_adjustment", "label": "Rounding Adjustment", "fieldname": "rounding_adjustment", "fieldtype": "Currency", "options": "currency", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "eval:!doc.disable_rounded_total", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "no_copy": 1, "print_hide": 1
-      },
-      {
-        "name": "rounded_total", "label": "Rounded Total", "fieldname": "rounded_total", "fieldtype": "Currency", "options": "currency", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "bold": 1, "width": "200px"
-      },
-      {
         "name": "in_words", "label": "In Words", "fieldname": "in_words", "fieldtype": "Data", "options": "", "default": "",
         "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 240, "precision": "",
         "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1, "width": "200px"
-      },
-      {
-        "name": "terms", "label": "Term Details", "fieldname": "terms", "fieldtype": "Text Editor", "options": "", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0
       }
     ] as Doctype[];
     const filteredFields = quotationFields.filter((field: Doctype) =>
@@ -331,6 +230,16 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
 
   const handleItemsChange = (updatedItems: ItemRowData[]) => {
     setItems(updatedItems);
+
+    const totalQty = updatedItems.reduce((sum, item) => sum + (item.qty || 0), 0);
+    const grandTotal = updatedItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+    setFormData(prev => ({
+      ...prev,
+      total_qty: totalQty,
+      grand_total: grandTotal,
+      total: grandTotal,
+      net_total: grandTotal
+    }));
     
     // Clear item-related errors
     const newErrors = { ...errors };
@@ -381,6 +290,12 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   const generalInfoSection = sections.find(sec => sec.title === 'General Information');
   const otherSections = sections.filter(sec => sec.title !== 'General Information');
 
+  const orderTypeIndex = generalInfoSection ? generalInfoSection.fields.findIndex(f => f.fieldname === 'order_type') : -1;
+
+  const fieldsBeforeOrderType = generalInfoSection && orderTypeIndex !== -1 ? generalInfoSection.fields.slice(0, orderTypeIndex + 1) : generalInfoSection ? generalInfoSection.fields : [];
+  const fieldsAfterOrderType = generalInfoSection && orderTypeIndex !== -1 ? generalInfoSection.fields.slice(orderTypeIndex + 1) : [];
+
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Text style={styles.title}>
@@ -391,7 +306,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       {generalInfoSection && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{generalInfoSection.title}</Text>
-          {generalInfoSection.fields.map((field) => (
+          {fieldsBeforeOrderType.map((field) => (
             <DynamicField
               key={field.fieldname}
               field={field}
@@ -414,6 +329,21 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         />
         {errors['items'] && <Text style={styles.errorText}>{errors['items']}</Text>}
       </View>
+
+      {generalInfoSection && fieldsAfterOrderType.length > 0 && (
+        <View style={styles.section}>
+          {fieldsAfterOrderType.map((field) => (
+            <DynamicField
+              key={field.fieldname}
+              field={field}
+              value={formData[field.fieldname]}
+              onChangeValue={updateField}
+              error={errors[field.fieldname]}
+              formData={formData}
+            />
+          ))}
+        </View>
+      )}
 
       {/* Other Form Sections */}
       {otherSections.map((section, index) => (

@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
+import { useRouter } from "expo-router";
 import React from 'react';
 import {
   FlatList,
@@ -12,6 +13,7 @@ interface Module {
   name: string;
   label: string;
   icon: IconSymbolName;
+  hidden?: boolean;
 }
 
 const modules: Module[] = [
@@ -22,6 +24,8 @@ const modules: Module[] = [
 ];
 
 const SellingModuleMenu = () => {
+  const router = useRouter();
+
   console.log("SellingModuleMenu component rendered");
   return (
     <ThemedView style={styles.container}>
@@ -29,13 +33,28 @@ const SellingModuleMenu = () => {
         Selling
       </ThemedText>
       <FlatList
-        data={modules}
+        data={modules.filter(item => !item.hidden)}
         keyExtractor={(item) => item.name}
         numColumns={2}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => {}}
+            onPress={() => {
+              switch (item.name) {
+                case "Quotations":
+                  router.push("/(tabs)/quotationlist");
+                  break;
+                case "Orders":
+                  router.push("/(tabs)/orderlist");
+                  break;
+                case "Customers":
+                  router.push("/(tabs)/customerlist");
+                  break;
+                case "Items":
+                  router.push("/(tabs)/itemlist");
+                  break;
+              }
+            }}
           >
             <IconSymbol name={item.icon} size={40} color="#333" />
             <ThemedText style={styles.cardText}>{item.label}</ThemedText>

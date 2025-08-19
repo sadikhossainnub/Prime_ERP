@@ -84,6 +84,23 @@ const api = {
 
     return response.json();
   },
+  forgetPassword: async (email: string) => {
+    const response = await fetch(`${API_URL}/api/method/frappe.core.doctype.user.user.reset_password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Password reset failed');
+    }
+
+    return response.json();
+  },
 };
 
 export default api;

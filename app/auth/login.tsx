@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import StyledButton from "@/components/ui/StyledButton";
 import StyledInput from "@/components/ui/StyledInput";
-import { BASE_URL } from "@/constants/config";
+import api from "@/services/api";
 import { login } from "@/services/auth";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter } from "expo-router";
@@ -24,27 +24,14 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/method/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: `usr=${encodeURIComponent(username)}&pwd=${encodeURIComponent(password)}`,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const cookies = response.headers.get("Set-Cookie");
-        await login(data.full_name, cookies); // Pass cookies to login function
-        Alert.alert("Login Successful", "Welcome!");
-        router.replace("/(tabs)/dashboard");
-      } else {
-        const errorData = await response.json();
-        Alert.alert("Login Failed", errorData.message || "Invalid username or password.");
-      }
-    } catch (error) {
+      const userData = await api.login(username, password);
+      const cookies = userData.home_page;
+      await login(userData.full_name, cookies);
+      Alert.alert("Login Successful", "Welcome!");
+      router.replace("/(tabs)/dashboard");
+    } catch (error: any) {
       console.error("Login error:", error);
-      Alert.alert("Login Error", "An unexpected error occurred. Please try again.");
+      Alert.alert("Login Failed", error.message || "Invalid username or password.");
     }
   };
 

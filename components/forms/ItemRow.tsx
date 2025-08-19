@@ -63,6 +63,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <Text style={styles.label}>Item Code *</Text>
           <LinkField
             doctype="Item"
+            fieldname="item_code"
             value={item.item_code || ''}
             onChangeValue={handleItemCodeChange}
             placeholder="Select Item"
@@ -112,6 +113,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <Text style={styles.label}>UOM</Text>
           <LinkField
             doctype="UOM"
+            fieldname="uom"
             value={item.uom || ''}
             onChangeValue={(value: string) => handleFieldChange('uom', value)}
             placeholder="Select UOM"
@@ -147,6 +149,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <Text style={styles.label}>Warehouse</Text>
           <LinkField
             doctype="Warehouse"
+            fieldname="warehouse"
             value={item.warehouse || ''}
             onChangeValue={(value: string) => handleFieldChange('warehouse', value)}
             placeholder="Select Warehouse"

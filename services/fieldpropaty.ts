@@ -179,15 +179,437 @@ export const getCommonDoctypeFields = async (doctype: string): Promise<Doctype[]
       { fieldname: 'tax_id', label: 'Tax ID', fieldtype: 'Data' },
     ],
     'Item': [
-      { fieldname: 'item_name', label: 'Item Name', fieldtype: 'Data', mandatory: 1 },
-      { fieldname: 'item_code', label: 'Item Code', fieldtype: 'Data', mandatory: 1 },
-      { fieldname: 'item_group', label: 'Item Group', fieldtype: 'Link', options: 'Item Group', mandatory: 1 },
-      { fieldname: 'stock_uom', label: 'Stock UOM', fieldtype: 'Link', options: 'UOM', mandatory: 1 },
-      { fieldname: 'is_stock_item', label: 'Is Stock Item', fieldtype: 'Check', default: '1' },
-      { fieldname: 'valuation_rate', label: 'Valuation Rate', fieldtype: 'Currency' },
-      { fieldname: 'standard_rate', label: 'Standard Selling Rate', fieldtype: 'Currency' },
-      { fieldname: 'description', label: 'Description', fieldtype: 'Text Editor' },
-    ],
+  {
+    "fieldname": "workflow_state",
+    "label": "Workflow State",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "naming_series",
+    "label": "Series",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "item_code",
+    "label": "Item Code",
+    "fieldtype": "Data"
+  },
+  {
+    "fieldname": "item_name",
+    "label": "Item Name",
+    "fieldtype": "Data"
+  },
+  {
+    "fieldname": "item_group",
+    "label": "Item Group",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "stock_uom",
+    "label": "Default Unit of Measure",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "item_type",
+    "label": "Item Type",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "disabled",
+    "label": "Disabled",
+    "fieldtype": "Check"
+  },
+  {
+    "fieldname": "allow_alternative_item",
+    "label": "Allow Alternative Item",
+    "fieldtype": "Check"
+  },
+  {
+    "fieldname": "is_stock_item",
+    "label": "Maintain Stock",
+    "fieldtype": "Check"
+  },
+  {
+    "fieldname": "has_variants",
+    "label": "Has Variants",
+    "fieldtype": "Check"
+  },
+  {
+    "fieldname": "opening_stock",
+    "label": "Opening Stock",
+    "fieldtype": "Float"
+  },
+  {
+    "fieldname": "customer_target_price",
+    "label": "Customer Target Price",
+    "fieldtype": "Currency"
+  },
+  {
+    "fieldname": "valuation_rate",
+    "label": "Valuation Rate",
+    "fieldtype": "Currency"
+  },
+  {
+    "fieldname": "standard_rate",
+    "label": "Standard Selling Rate",
+    "fieldtype": "Currency"
+  },
+  {
+    "fieldname": "is_fixed_asset",
+    "label": "Is Fixed Asset",
+    "fieldtype": "Check"
+  },
+  {
+    "fieldname": "auto_create_assets",
+    "label": "Auto Create Assets on Purchase",
+    "fieldtype": "Check"
+  },
+  {
+    "fieldname": "is_grouped_asset",
+    "label": "Create Grouped Asset",
+    "fieldtype": "Check"
+  },
+  {
+    "fieldname": "asset_category",
+    "label": "Asset Category",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "asset_naming_series",
+    "label": "Asset Naming Series",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "over_delivery_receipt_allowance",
+    "label": "Over Delivery/Receipt Allowance (%)",
+    "fieldtype": "Float"
+  },
+  {
+    "fieldname": "over_billing_allowance",
+    "label": "Over Billing Allowance (%)",
+    "fieldtype": "Float"
+  },
+  {
+    "fieldname": "image",
+    "label": "Image",
+    "fieldtype": "Attach Image"
+  },
+  {
+    "fieldname": "paper_cup_size",
+    "label": "Paper Cup Size",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "box_name",
+    "label": "Box Name",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "file_folder_name",
+    "label": "File Folder Name",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "envelop_name",
+    "label": "Envelop Name",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "window",
+    "label": "Window",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "paper_cup_type",
+    "label": "Paper Cup Type",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "paper_cup_wall",
+    "label": "Paper Cup Wall",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "single_wall_paper_gsm",
+    "label": "Single Wall Paper Gsm",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "double_wall_paper_gsm",
+    "label": "Double Wall Paper GSM",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "bottom_gsm",
+    "label": "Bottom GSM",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "bottom_size",
+    "label": "Bottom Size",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "office_document_name",
+    "label": "Office Document Name",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "printing_colour",
+    "label": "Printing Colour",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "laminnation",
+    "label": "Laminnation",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "foil",
+    "label": "Foil",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "tear_away_label",
+    "label": "Tear Away Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "heat_transfer_label",
+    "label": "Heat Transfer Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "origin",
+    "label": "Origin",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "brand",
+    "label": "Brand",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "sub_brand",
+    "label": "Sub Brand",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "lid_size",
+    "label": "Lid Size",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "file_folder_size",
+    "label": "File Folder Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "lid_color",
+    "label": "Lid Color",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "lid_type",
+    "label": "Lid Type",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "quality",
+    "label": "Quality",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "paper_name",
+    "label": "Paper Name",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "paper_gsm",
+    "label": "Paper GSM",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "printing_metallic",
+    "label": "Printing Metallic",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "printing_sandy",
+    "label": "Printing Sandy",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "corrugated",
+    "label": "Corrugated ",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "pasting",
+    "label": "Pasting",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "cup_lock",
+    "label": "Cup Lock",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "holder_size",
+    "label": "Holder Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "ambush",
+    "label": "Ambush",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "business_card_size",
+    "label": "Business Card Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "screen_printing",
+    "label": "Screen Printing",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "envelop_size",
+    "label": "Envelop Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "invoice_size",
+    "label": "Invoice Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "brand_label",
+    "label": "Brand Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "woven_label",
+    "label": "Woven Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "printed_fabric_label",
+    "label": "Printed Fabric Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "satin_label",
+    "label": "Satin Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "box_size",
+    "label": "Box Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "window_size",
+    "label": "Window Size ",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "bag_name",
+    "label": "Bag Name",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "bag_size",
+    "label": "Bag Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "ribbon",
+    "label": "Ribbon",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "table_matt_size",
+    "label": "Table Matt Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "die_cut",
+    "label": "Die Cut",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "tray_size",
+    "label": "Tray Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "wrapping_paper_size",
+    "label": "Wrapping Paper Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "sticker_size",
+    "label": "Sticker Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "cone_name",
+    "label": "Cone Name",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "cone_size",
+    "label": "Cone Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "leaflet_size",
+    "label": "Leaflet Size",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "page_fold",
+    "label": "Page Fold",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "paper_pages",
+    "label": "Paper Pages",
+    "fieldtype": "Link"
+  },
+  {
+    "fieldname": "eye_late",
+    "label": "Eye Late",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "main_label",
+    "label": "Main Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "care_label",
+    "label": "Care Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "size_label",
+    "label": "Size Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "composition_label",
+    "label": "Composition Label",
+    "fieldtype": "Select"
+  },
+  {
+    "fieldname": "description",
+    "label": "Description",
+    "fieldtype": "Text Editor"
+  },
+],
     'Quotation': [
       { fieldname: 'party_name', label: 'Customer', fieldtype: 'Link', options: 'Customer', mandatory: 1 },
       { fieldname: 'transaction_date', label: 'Date', fieldtype: 'Date', mandatory: 1, default: 'Today' },

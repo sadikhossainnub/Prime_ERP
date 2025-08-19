@@ -1,10 +1,11 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import SalesOrderForm from '../../components/forms/SalesOrderForm';
 
 const SalesOrderFormScreen = () => {
   const router = useRouter();
+  const { initialData, mode = 'create' } = useLocalSearchParams<{ initialData?: string; mode?: 'create' | 'edit' }>();
 
   const handleSuccess = () => {
     router.push('/(tabs)/orderlist');
@@ -14,12 +15,15 @@ const SalesOrderFormScreen = () => {
     router.back();
   };
 
+  const parsedInitialData = initialData ? JSON.parse(initialData) : {};
+
   return (
     <View style={styles.container}>
-      <SalesOrderForm 
+      <SalesOrderForm
         onSuccess={handleSuccess}
         onCancel={handleCancel}
-        mode="create"
+        initialData={parsedInitialData}
+        mode={mode as 'create' | 'edit'}
       />
     </View>
   );

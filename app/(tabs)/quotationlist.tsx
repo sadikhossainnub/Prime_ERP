@@ -68,17 +68,32 @@ const QuotationListScreen = () => {
         data={filteredQuotations}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Name: {item.name}</Text>
-            <Text style={styles.cardText}>Customer: {item.customer_name}</Text>
-            <Text style={styles.cardText}>Total: {item.grand_total}</Text>
-            <Text style={styles.cardText}>Date: {item.transaction_date}</Text>
-            <Text style={styles.cardText}>Valid Till: {item.valid_till}</Text>
-            <Text style={styles.cardText}>TD Date: {item.td_date}</Text>
-            <Text style={[styles.cardText, styles.statusStyle, { color: item.status === 'Draft' ? 'gray' : item.status === 'Submitted' ? 'blue' : 'green' }]}>
-              Status: {item.status}
-            </Text>
-          </View>
+          <TouchableOpacity
+            onPress={async () => {
+              try {
+                const response = await apiRequest(`Quotation/${item.name}`);
+                router.push({
+                  pathname: '/(tabs)/quotationform',
+                  params: { initialData: JSON.stringify(response.data), mode: 'edit' },
+                });
+              } catch (error) {
+                console.error('Failed to fetch quotation details:', error);
+                Alert.alert('Error', 'Failed to fetch quotation details.');
+              }
+            }}
+          >
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Name: {item.name}</Text>
+              <Text style={styles.cardText}>Customer: {item.customer_name}</Text>
+              <Text style={styles.cardText}>Total: {item.grand_total}</Text>
+              <Text style={styles.cardText}>Date: {item.transaction_date}</Text>
+              <Text style={styles.cardText}>Valid Till: {item.valid_till}</Text>
+              <Text style={styles.cardText}>TD Date: {item.td_date}</Text>
+              <Text style={[styles.cardText, styles.statusStyle, { color: item.status === 'Draft' ? 'gray' : item.status === 'Submitted' ? 'blue' : 'green' }]}>
+                Status: {item.status}
+              </Text>
+            </View>
+          </TouchableOpacity>
         )}
       />
     </View>

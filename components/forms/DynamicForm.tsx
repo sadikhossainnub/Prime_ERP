@@ -46,9 +46,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       const response = await getDoctypeFields(doctype);
       
       // Filter out system fields and sort by idx if available
-      const filteredFields = response.filter((field: Doctype) =>
-        !['name', 'owner', 'creation', 'modified', 'modified_by', 'docstatus', 'idx'].includes(field.fieldname)
-      ).sort((a: any, b: any) => (a.idx || 0) - (b.idx || 0));
+      const filteredFields = response.sort((a: any, b: any) => (a.idx || 0) - (b.idx || 0));
       
       setFields(filteredFields);
       console.log(`Successfully loaded ${filteredFields.length} fields for ${doctype}`);
@@ -316,6 +314,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    marginTop: 30,
   },
   contentContainer: {
     padding: 20,

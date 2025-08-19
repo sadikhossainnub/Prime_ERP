@@ -1,4 +1,5 @@
 
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { API_KEY, API_SECRET, BASE_URL } from '../../constants/config';
@@ -20,12 +21,33 @@ interface FormSection {
   fields: Doctype[];
 }
 
+const numberToWords = (num: number): string => {
+  const a = [
+    '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven',
+    'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+  ];
+  const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+  
+  const numStr = num.toString();
+  if (numStr.length > 9) return 'overflow';
+  const n = ('000000000' + numStr).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+  if (!n) return '';
+  let str = '';
+  str += (Number(n[1]) != 0) ? (a[Number(n[1])] || b[Number(n[1][0])] + ' ' + a[Number(n[1][1])]) + ' crore ' : '';
+  str += (Number(n[2]) != 0) ? (a[Number(n[2])] || b[Number(n[2][0])] + ' ' + a[Number(n[2][1])]) + ' lakh ' : '';
+  str += (Number(n[3]) != 0) ? (a[Number(n[3])] || b[Number(n[3][0])] + ' ' + a[Number(n[3][1])]) + ' thousand ' : '';
+  str += (Number(n[4]) != 0) ? (a[Number(n[4])] || b[Number(n[4][0])] + ' ' + a[Number(n[4][1])]) + ' hundred ' : '';
+  str += (Number(n[5]) != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[Number(n[5][0])] + ' ' + a[Number(n[5][1])]) : '';
+  return str.trim();
+};
+
 const QuotationForm: React.FC<QuotationFormProps> = ({
   onSuccess,
   onCancel,
   initialData = {},
   mode = 'create'
 }) => {
+  const router = useRouter();
   const [fields, setFields] = useState<Doctype[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>(initialData);
   const [items, setItems] = useState<ItemRowData[]>([]);
@@ -39,7 +61,8 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
     if (initialData.items && Array.isArray(initialData.items)) {
       setItems(initialData.items);
     } else {
-      setItems([{
+      setItems([
+        {
         item_code: '',
         item_name: '',
         description: '',
@@ -48,7 +71,8 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         rate: 0,
         amount: 0,
         warehouse: '',
-      }]);
+      }
+      ]);
     }
   }, []);
 
@@ -208,7 +232,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
 
       Alert.alert(
         'Success',
-        `Quotation ${mode === 'create' ? 'created' : 'updated'} successfully!`,
+        `Quotation ${mode === 'create' ? 'created' : 'updated'} successfully!`, 
         [{ text: 'OK', onPress: () => onSuccess?.(responseData.data) }]
       );
     } catch (error) {
@@ -233,12 +257,14 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
 
     const totalQty = updatedItems.reduce((sum, item) => sum + (item.qty || 0), 0);
     const grandTotal = updatedItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const inWords = numberToWords(grandTotal);
     setFormData(prev => ({
       ...prev,
       total_qty: totalQty,
       grand_total: grandTotal,
       total: grandTotal,
-      net_total: grandTotal
+      net_total: grandTotal,
+      in_words: inWords
     }));
     
     // Clear item-related errors
@@ -249,6 +275,19 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
       }
     });
     setErrors(newErrors);
+  };
+
+  const handleCreateSalesOrder = () => {
+    router.push({
+      pathname: '/(tabs)/salesorderform',
+      params: {
+        initialData: JSON.stringify({
+          ...formData,
+          items: items,
+        }),
+        mode: 'create',
+      },
+    });
   };
 
   const groupFieldsIntoSections = (fields: Doctype[]): FormSection[] => {
@@ -378,6 +417,13 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
             textStyle={styles.cancelButtonText}
           />
         )}
+        {mode === 'edit' && (
+          <StyledButton
+            title="Create Sales Order"
+            onPress={handleCreateSalesOrder}
+            style={styles.salesOrderButton}
+          />
+        )}
       </View>
     </ScrollView>
   );
@@ -387,6 +433,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    marginTop: 30,
   },
   contentContainer: {
     padding: 20,
@@ -434,6 +481,9 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: '#fff',
+  },
+  salesOrderButton: {
+    backgroundColor: '#28a745',
   },
 });
 

@@ -15,6 +15,7 @@ import { getDoctypes } from '../../services/doctype';
 
 interface LinkFieldProps {
   doctype: string;
+  fieldname: string; // Add fieldname prop
   value: string;
   onChangeValue: (value: string) => void;
   placeholder?: string;
@@ -31,6 +32,7 @@ interface LinkOption {
 
 const LinkField: React.FC<LinkFieldProps> = ({
   doctype,
+  fieldname, // Destructure fieldname
   value,
   onChangeValue,
   placeholder = 'Select an option',
@@ -58,26 +60,18 @@ const LinkField: React.FC<LinkFieldProps> = ({
       } else {
         // Use the generic resource fetcher for other doctypes
         const headers = await getAuthHeaders();
-        let url = `${BASE_URL}/api/resource/${doctype}?order_by=modified desc`;
-
-        const allFilters: string[] = [];
+        const urlObject = new URL(`${BASE_URL}/api/resource/${doctype}`);
+        urlObject.searchParams.append('order_by', 'modified desc');
 
         if (propFilters) {
-          propFilters.forEach(filter => {
-            allFilters.push(`[\"${doctype}\",\"${filter[0]}\",\"${filter[1]}\",\"${filter[2]}\"]`);
-          });
+          urlObject.searchParams.append('filters', JSON.stringify(propFilters));
         }
 
         if (query.trim()) {
-          const searchFields = ['name', 'title', 'customer_name', 'supplier_name', 'item_name'];
-          searchFields.forEach(field => {
-            allFilters.push(`[\"${doctype}\",\"${field}\",\"like\",\"%${query}%\"]`);
-          });
+          urlObject.searchParams.append('q', query.trim());
         }
 
-        if (allFilters.length > 0) {
-          url += `&filters=[${allFilters.join(',')}]`;
-        }
+        const url = urlObject.toString();
         
         console.log('LinkField fetchOptions URL:', url);
         const response = await fetch(url, { method: 'GET', headers });
@@ -174,7 +168,9 @@ const LinkField: React.FC<LinkFieldProps> = ({
         )}
         renderItem={(item, index, isSelected) => (
           <View style={[styles.rowStyle, isSelected && styles.rowSelected]}>
-            <Text style={[styles.rowTextStyle, isSelected && styles.rowTextSelected]}>{item.name} - {item.title}</Text>
+            <Text style={[styles.rowTextStyle, isSelected && styles.rowTextSelected]}>
+              {item.title ? `${item.name} - ${item.title}` : item.name}
+            </Text>
           </View>
         )}
         dropdownStyle={styles.dropdownStyle}

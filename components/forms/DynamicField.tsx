@@ -1,10 +1,12 @@
 import React from 'react';
-import { StyleSheet, Switch, Text, View } from 'react-native';
+import { Button, StyleSheet, Switch, Text, View } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { Doctype } from '../../types/doctypes';
+import { ThemedText } from '../ThemedText';
 import StyledInput from '../ui/StyledInput';
 import DateField from './DateField';
 import DynamicLinkField from './DynamicLinkField';
+import ItemTable from './ItemTable';
 import LinkField from './LinkField';
 
 interface DynamicFieldProps {
@@ -14,6 +16,25 @@ interface DynamicFieldProps {
   error?: string;
   formData?: Record<string, any>;
 }
+
+const evaluateDependsOn = (condition: string | undefined, doc: any): boolean => {
+  if (!condition) {
+    return true;
+  }
+
+  if (condition.startsWith('eval:')) {
+    const expression = condition.substring(5);
+    try {
+      const func = new Function('doc', `return ${expression}`);
+      return !!func(doc);
+    } catch (e) {
+      console.error(`Error evaluating depends_on expression: "${expression}"`, e);
+      return false;
+    }
+  }
+
+  return !!doc[condition];
+};
 
 const DynamicField: React.FC<DynamicFieldProps> = ({
   field,
@@ -54,6 +75,7 @@ const DynamicField: React.FC<DynamicFieldProps> = ({
         return (
           <LinkField
             doctype={field.options || ''}
+            fieldname={field.fieldname} // Pass the fieldname
             value={value || ''}
             onChangeValue={handleChange}
             placeholder={placeholder}
@@ -226,6 +248,53 @@ const DynamicField: React.FC<DynamicFieldProps> = ({
         // Skip rendering buttons in forms
         return null;
 
+      case 'Section Break':
+        return <ThemedText type="subtitle">{field.label}</ThemedText>;
+
+      case 'Column Break':
+      case 'Tab Break':
+        return null;
+
+      case 'Table':
+        return (
+          <ItemTable
+            items={value || []}
+            onItemsChange={handleChange}
+            editable={!isReadOnly}
+          />
+        );
+
+      case 'Rating':
+        // Placeholder for Rating component
+        return (
+          <StyledInput
+            placeholder={placeholder}
+            value={value?.toString() || ''}
+            onChangeText={(text) => handleChange(parseInt(text) || 0)}
+            keyboardType="numeric"
+            editable={!isReadOnly}
+          />
+        );
+
+      case 'Attach Image':
+        // Placeholder for Attach Image component
+        return (
+          <View>
+            <Text>{field.label}</Text>
+            <Button title="Upload Image" onPress={() => {}} disabled={isReadOnly} />
+            {value && <Text>Image Attached: {value}</Text>}
+          </View>
+        );
+      
+      case 'HTML':
+        // Placeholder for HTML component
+        return (
+          <View>
+            <Text>{field.label}</Text>
+            <Text>(HTML content not rendered)</Text>
+          </View>
+        );
+
       default:
         // Default to text input for unknown field types
         return (
@@ -239,8 +308,10 @@ const DynamicField: React.FC<DynamicFieldProps> = ({
     }
   };
 
-  // Skip hidden fields
-  if (field.hidden === 1) {
+  const isVisible = evaluateDependsOn(field.depends_on, formData);
+
+  // Skip hidden or dependent fields that should not be visible
+  if (field.hidden === 1 || !isVisible) {
     return null;
   }
 

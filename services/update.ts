@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system';
 import * as Linking from 'expo-linking';
 import { Alert, Platform } from 'react-native';
 
-const UPDATE_URL = "https://primetechbd.xyz/app-update.json"; // TODO: Replace with your actual WordPress update JSON URL
+const UPDATE_URL = "https://primetechbd.xyz/wp-content/uploads/App/app-updates.json";
 
 export const checkForUpdate = async () => {
     try {

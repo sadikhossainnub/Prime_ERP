@@ -3,6 +3,7 @@ import { checkForUpdate } from '@/services/update';
 import { Stack } from 'expo-router';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { startLocationTracking, stopLocationTracking } from '../services/locationTracking';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function RootLayoutNav() {
@@ -10,7 +11,16 @@ function RootLayoutNav() {
 
   useEffect(() => {
     checkForUpdate();
-  }, []);
+    if (user) {
+      startLocationTracking();
+    } else {
+      stopLocationTracking();
+    }
+
+    return () => {
+      stopLocationTracking();
+    };
+  }, [user]);
 
   console.log('RootLayoutNav - isLoading:', isLoading, 'user:', user);
 
@@ -34,7 +44,7 @@ function RootLayoutNav() {
         headerShown: false,
       }}
     >
-      {user && user.authenticated ? (
+      {user ? (
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       ) : (
         <Stack.Screen name="auth" options={{ headerShown: false }} />

@@ -31,3 +31,15 @@ export interface Doctype {
   remember_last_selected_value?: number;
   bold?: number;
 }
+
+export interface MobileLocation {
+  name?: string; // Optional, server might assign
+  user?: string; // User associated with the location, as per cURL example
+  latitude: number;
+  longitude: number;
+  timestamp: string; // ISO 8601
+  accuracy?: number;
+  altitude?: number;
+  heading?: number;
+  speed?: number;
+}

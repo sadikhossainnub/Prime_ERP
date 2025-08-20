@@ -1,5 +1,5 @@
 import { BASE_URL } from '@/constants/config';
-import { getAuthHeaders } from './authHeaders';
+import { apiMethodRequest, apiRequest } from './api'; // Import apiRequest and apiMethodRequest
 
 const API_URL = BASE_URL;
 
@@ -20,73 +20,67 @@ export interface UserProfile {
 
 export const getUserProfile = async (): Promise<UserProfile> => {
   try {
-    const headers = await getAuthHeaders();
-
-    const response = await fetch(`${API_URL}/api/method/frappe.auth.get_logged_user`, {
+    const loggedUser = await apiMethodRequest('frappe.auth.get_logged_user', {
       method: 'GET',
-      headers,
     });
+    const username = loggedUser.message; // Assuming this returns the username/email
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API response error:', errorText);
-      throw new Error(`Failed to fetch current user info: HTTP ${response.status}`);
+    if (!username) {
+      throw new Error('Logged in user email not found.');
     }
 
-    const data = await response.json();
-    console.log('API response data:', data);
-    return data.message || data;
+    // Now fetch the full User doctype for more details
+    const userProfileData = await apiRequest(`User/${username}`, {
+      method: 'GET',
+    });
+
+    console.log('Full User Profile Data:', userProfileData.data);
+    return userProfileData.data; // Frappe API usually returns data in .data property for resource GET
   } catch (error) {
-    console.error('Error fetching current user info:', error);
-    // Fallback for API token authentication
-    return {
-      name: 'API User',
-      email: 'api@system.local',
-      full_name: 'API Token User',
-    };
+    console.error('Error fetching user profile:', error);
+    throw error;
   }
 };
 
 export const updateUserProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
-  const headers = await getAuthHeaders();
-
-  // For API token authentication, we'll use a generic approach
-  const response = await fetch(`${API_URL}/api/resource/User`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(profileData),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to update user profile');
+  try {
+    const data = await apiRequest('User', {
+      method: 'PUT', // Assuming PUT for update
+      body: JSON.stringify(profileData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return data.data;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.data;
 };
 
 export const getCurrentUserInfo = async (): Promise<UserProfile> => {
   try {
-    const headers = await getAuthHeaders();
-
-    const response = await fetch(`${API_URL}/api/method/frappe.auth.get_logged_user`, {
+    const loggedUser = await apiMethodRequest('frappe.auth.get_logged_user', {
       method: 'GET',
-      headers,
     });
+    const username = loggedUser.message; // Assuming this returns the username/email
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch current user info: HTTP ${response.status}`);
+    if (!username) {
+      throw new Error('Logged in user email not found.');
     }
 
-    const data = await response.json();
-    return data.message || data;
+    // Now fetch the full User doctype for more details
+    const userProfileData = await apiRequest(`User/${username}`, {
+      method: 'GET',
+    });
+    return userProfileData.data;
   } catch (error) {
     console.error('Error fetching current user info:', error);
-    // Fallback for API token authentication
+    // Fallback if API call fails or email is not found
     return {
-      name: 'user.name',
-      email: 'user.emil',
-      full_name: 'user.full_name',
+      name: 'Unknown User',
+      email: '', // Returning empty string to trigger the check in locationTracking.ts
+      full_name: 'Unknown User (API fetch failed)',
     };
   }
 };

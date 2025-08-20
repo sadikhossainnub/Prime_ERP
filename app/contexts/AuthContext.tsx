@@ -1,8 +1,11 @@
-import React, { createContext, useContext, useState } from 'react';
-import api from '../../services/api';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import api, { getSid, setSid } from '../../services/api'; // Import getSid and setSid
+import { getCurrentUserInfo, UserProfile } from '../../services/profile'; // Import UserProfile
+
+const AUTH_STORAGE_KEY = 'prime_erp_auth_data'; // Consider if this is still needed as SID is stored in API service
 
 interface AuthContextProps {
-  user: any;
+  user: UserProfile | null; // Use UserProfile type
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -16,24 +19,41 @@ const AuthContext = createContext<AuthContextProps>({
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null); // Use UserProfile type
+  const [isLoading, setIsLoading] = useState(true); // Set to true initially
+  
+  useEffect(() => {
+    const loadAuthData = async () => {
+      try {
+        const sid = await getSid(); // Get SID from storage
+        if (sid) {
+          // If SID exists, try to fetch user info to validate session
+          const userInfo = await getCurrentUserInfo();
+          setUser(userInfo);
+          console.log('Session restored for user:', userInfo.email);
+        }
+      } catch (error) {
+        console.error('Failed to load auth data or validate session:', error);
+        await setSid(null); // Clear invalid SID
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadAuthData();
+  }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const userData = await api.login(email, password);
-      // Set user data for UI purposes - using token authentication
-      setUser({
-        email: email,
-        name: userData.name || userData.full_name || email,
-        full_name: userData.full_name || userData.name || email,
-        authenticated: true,
-        authMethod: 'token', // Indicate we're using token auth
-      });
-      console.log('Token-based authentication successful');
+      await api.login(email, password); // API service now handles SID storage
+      const userInfo = await getCurrentUserInfo(); // Fetch user info after successful login
+      setUser(userInfo);
+      console.log('Login successful for user:', userInfo.email);
     } catch (error) {
-      console.error('Token-based login failed:', error);
+      console.error('Login failed:', error);
+      setUser(null); // Ensure user is null on login failure
+      await setSid(null); // Clear any partial SID on login failure
       throw error; // Re-throw to let UI handle the error
     } finally {
       setIsLoading(false);
@@ -43,12 +63,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     setIsLoading(true);
     try {
-      await api.logout();
+      await api.logout(); // API service now handles SID clearing
       setUser(null);
+      console.log('Logout successful.');
     } catch (error) {
       console.error('Logout failed:', error);
-      // Clear user even if logout API fails
+      // Even if logout API fails, clear local session for safety
       setUser(null);
+      await setSid(null);
     } finally {
       setIsLoading(false);
     }

@@ -18,7 +18,13 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.primetechbd.Prime_ERP"
+      "package": "com.primetechbd.Prime_ERP",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +39,13 @@
           "image": "./assets/images/logo.jpg",
           "resizeMode": "contain",
           "backgroundColor": "#1A1A2E"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "Allow this app to access your location even when the app is closed or not in use."
         }
       ]
     ],

@@ -1,5 +1,4 @@
-import { BASE_URL } from '@/constants/config';
-import { getAuthHeaders } from './authHeaders';
+import { apiRequest } from './api';
 
 /**
  * @interface IDocType
@@ -85,17 +84,14 @@ export const COMMON_DOCTYPES = [
  * This is a workaround when we can't access the DocType list directly
  */
 export const checkDoctypeExists = async (doctype: string): Promise<boolean> => {
-  const headers = await getAuthHeaders();
-  
   try {
-    const response = await fetch(`${BASE_URL}/api/resource/${doctype}?limit_page_length=1`, {
-      headers,
-    });
-    
-    // If we get 200 or 403 (forbidden but doctype exists), the doctype exists
-    // If we get 404, the doctype doesn't exist
-    return response.status !== 404;
-  } catch (error) {
+    await apiRequest(doctype, { params: { limit_page_length: 1 } });
+    return true;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      return false;
+    }
+    // Log other errors but consider the doctype as non-existent for safety
     console.warn(`Error checking doctype existence for ${doctype}:`, error);
     return false;
   }
@@ -107,36 +103,22 @@ export const checkDoctypeExists = async (doctype: string): Promise<boolean> => {
  * @returns A promise that resolves to the doctype definition.
  */
 export const getDoctype = async (doctype: string): Promise<IDocType> => {
-  const headers = await getAuthHeaders();
-
   try {
-    const response = await fetch(`${BASE_URL}/api/resource/DocType/${doctype}`, {
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = `Failed to fetch doctype ${doctype}`;
-      
-      if (response.status === 403) {
+    const response = await apiRequest(`DocType/${doctype}`);
+    return response.data;
+  } catch (error: any) {
+    let errorMessage = `Failed to fetch doctype ${doctype}`;
+    if (error.response) {
+      if (error.response.status === 403) {
         errorMessage = `Access denied: You don't have permission to access doctype ${doctype}. Please check your user roles.`;
-      } else if (response.status === 404) {
+      } else if (error.response.status === 404) {
         errorMessage = `Doctype ${doctype} not found. Please verify the doctype name.`;
-      } else if (response.status === 401) {
+      } else if (error.response.status === 401) {
         errorMessage = `Authentication failed. Please check API credentials.`;
       }
-      
-      console.error(`Failed to fetch doctype ${doctype}:`, response.status, errorText);
-      throw new Error(errorMessage);
     }
-
-    const data = await response.json();
-    return data.data;
-  } catch (error) {
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to connect to the server. Please check your connection.');
-    }
-    throw error;
+    console.error(`Failed to fetch doctype ${doctype}:`, error);
+    throw new Error(errorMessage);
   }
 };
 
@@ -147,87 +129,22 @@ export const getDoctype = async (doctype: string): Promise<IDocType> => {
  * @returns A promise that resolves to an array of doctype names.
  */
 export const getDoctypes = async (retryCount: number = 2, useFallback: boolean = true): Promise<string[]> => {
-  const headers = await getAuthHeaders();
-
-  // First, try the direct API approach
-  for (let attempt = 0; attempt <= retryCount; attempt++) {
-    try {
-      const response = await fetch(`${BASE_URL}/api/resource/DocType?limit_page_length=None`, {
-        headers,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = 'Failed to fetch doctypes';
-        
-        if (response.status === 403) {
-          console.warn('Direct doctype access denied. Will use fallback strategies.');
-          if (useFallback) {
-            return await getDoctypesWithFallback();
-          }
-          errorMessage = 'Access denied: You don\'t have permission to access doctypes. Please check your user roles or contact your system administrator.';
-        } else if (response.status === 401) {
-          errorMessage = 'Authentication failed. Please check API credentials.';
-        } else if (response.status >= 500) {
-          errorMessage = 'Server error. Please try again later.';
-        }
-        
-        console.error('Failed to fetch doctypes:', response.status, errorText);
-        
-        // Don't retry for permission or authentication errors
-        if (response.status === 403 || response.status === 401) {
-          if (response.status === 403 && useFallback) {
-            return await getDoctypesWithFallback();
-          }
-          throw new Error(errorMessage);
-        }
-        
-        // Retry for server errors if attempts remain
-        if (attempt < retryCount && response.status >= 500) {
-          console.log(`Retrying... Attempt ${attempt + 2} of ${retryCount + 1}`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1))); // Exponential backoff
-          continue;
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      return data.data.map((d: any) => d.name);
-    } catch (error) {
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        if (attempt < retryCount) {
-          console.log(`Network error, retrying... Attempt ${attempt + 2} of ${retryCount + 1}`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-          continue;
-        }
-        
-        // If direct API fails due to network and we have fallback enabled
-        if (useFallback) {
-          console.warn('Network error accessing DocType API. Using fallback strategies.');
-          return await getDoctypesWithFallback();
-        }
-        
-        throw new Error('Network error: Unable to connect to the server. Please check your connection.');
-      }
-      
-      // For other errors, try fallback if enabled
-      if (useFallback && error instanceof Error && error.message.includes('permission')) {
-        return await getDoctypesWithFallback();
-      }
-      
-      // Re-throw non-network errors immediately
-      throw error;
+  try {
+    const response = await apiRequest('DocType', {
+      params: { limit_page_length: 'None' },
+    });
+    return response.data.map((d: any) => d.name);
+  } catch (error: any) {
+    if (useFallback && error.response && (error.response.status === 403 || error.response.status === 401)) {
+      console.warn('Direct doctype access denied. Will use fallback strategies.');
+      return await getDoctypesWithFallback();
     }
+    if (useFallback) {
+      console.warn('API call failed. Using fallback strategies.', error);
+      return await getDoctypesWithFallback();
+    }
+    throw error;
   }
-  
-  // Final fallback if all retries failed
-  if (useFallback) {
-    console.warn('All direct API attempts failed. Using fallback strategies.');
-    return await getDoctypesWithFallback();
-  }
-  
-  throw new Error('Maximum retry attempts reached. Please try again later.');
 };
 
 /**
@@ -297,51 +214,33 @@ export const getModuleDoctypes = (module: 'selling' | 'buying' | 'stock' | 'acco
  * @returns A promise that resolves to the created doctype.
  */
 export const createDoctype = async (doctypeData: Partial<IDocType>): Promise<IDocType> => {
-  const headers = await getAuthHeaders();
-
   if (!doctypeData.name) {
     throw new Error('Doctype name is required.');
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/api/resource/DocType`, {
+    const response = await apiRequest('DocType', {
       method: 'POST',
-      headers,
-      body: JSON.stringify(doctypeData),
+      data: doctypeData,
     });
-
-    if (!response.ok) {
-      let errorMessage = 'Failed to create doctype';
-      
-      try {
-        const errorData = await response.json();
-        if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (errorData._error_message) {
-          errorMessage = errorData._error_message;
-        }
-      } catch {
-        // If JSON parsing fails, use generic error message based on status
-        if (response.status === 403) {
-          errorMessage = 'Access denied: You don\'t have permission to create doctypes.';
-        } else if (response.status === 401) {
-          errorMessage = 'Authentication failed. Please check API credentials.';
-        } else if (response.status === 409) {
-          errorMessage = `Doctype '${doctypeData.name}' already exists.`;
-        } else if (response.status >= 500) {
-          errorMessage = 'Server error occurred while creating doctype. Please try again later.';
-        }
+    return response.data;
+  } catch (error: any) {
+    let errorMessage = 'Failed to create doctype';
+    if (error.response) {
+      const errorData = error.response.data;
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      } else if (errorData._error_message) {
+        errorMessage = errorData._error_message;
+      } else if (error.response.status === 403) {
+        errorMessage = 'Access denied: You don\'t have permission to create doctypes.';
+      } else if (error.response.status === 401) {
+        errorMessage = 'Authentication failed. Please check API credentials.';
+      } else if (error.response.status === 409) {
+        errorMessage = `Doctype '${doctypeData.name}' already exists.`;
       }
-      
-      console.error('Failed to create doctype:', response.status, errorMessage);
-      throw new Error(errorMessage);
     }
-
-    return response.json();
-  } catch (error) {
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to connect to the server. Please check your connection.');
-    }
-    throw error;
+    console.error('Failed to create doctype:', error);
+    throw new Error(errorMessage);
   }
 };

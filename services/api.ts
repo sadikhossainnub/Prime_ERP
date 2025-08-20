@@ -1,5 +1,6 @@
 import { BASE_URL } from '@/constants/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 const API_URL = BASE_URL;
 const SID_STORAGE_KEY = 'prime_erp_sid';
@@ -24,117 +25,80 @@ export const getSid = async (): Promise<string | null> => {
   return storedSid;
 };
 
-export const apiRequest = async (endpoint: string, options?: RequestInit) => {
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+});
+
+axiosInstance.interceptors.request.use(async (config) => {
   const sid = await getSid();
-  const headers = new Headers(options?.headers as HeadersInit);
-
   if (sid) {
-    headers.set('Cookie', `sid=${sid}`);
+    config.headers.Cookie = `sid=${sid}`;
   }
+  return config;
+});
 
-  const response = await fetch(`${API_URL}/api/resource/${endpoint}`, {
-    headers: headers,
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.response) {
+      console.error(`API Error for ${error.config?.url}: ${error.response.status} ${error.response.statusText}.`, error.response.data);
+      throw new Error(`Failed to fetch ${error.config?.url}: ${error.response.statusText}. Details: ${JSON.stringify(error.response.data)}`);
+    } else if (error.request) {
+      console.error('API Error: No response received.', error.request);
+      throw new Error('Network error: Unable to connect to the server.');
+    } else {
+      console.error('API Error: Request setup failed.', error.message);
+      throw new Error(`Request failed: ${error.message}`);
+    }
+  }
+);
+
+export const apiRequest = async (endpoint: string, options?: AxiosRequestConfig) => {
+  const response = await axiosInstance.request({
+    url: `/api/resource/${endpoint}`,
     ...options,
   });
-
-  const contentType = response.headers.get('content-type');
-  if (!response.ok || (contentType && !contentType.includes('application/json'))) {
-    const errorText = await response.text();
-    console.error(`API Error for ${endpoint}: ${response.status} ${response.statusText}. Response was not JSON or not OK.`, errorText);
-    throw new Error(`Failed to fetch ${endpoint}: ${response.statusText}. Details: ${errorText}`);
-  }
-
-  return response.json();
+  return response.data;
 };
 
-export const apiMethodRequest = async (methodPath: string, options?: RequestInit & { params?: Record<string, any> }) => {
-  const sid = await getSid();
-  const headers = new Headers(options?.headers as HeadersInit);
-
-  if (sid) {
-    headers.set('Cookie', `sid=${sid}`);
-  }
-
-  let url = `${API_URL}/api/method/${methodPath}`;
-  const { params, ...fetchOptions } = options || {}; // Destructure to separate params
-
-  if (params && fetchOptions.method === 'GET') {
-    const queryParams = new URLSearchParams();
-    for (const key in params) {
-      if (params.hasOwnProperty(key)) {
-        // Handle special Frappe parameters like filters and fields which are JSON strings
-        if (['filters', 'fields', 'docstatus', 'group_by', 'order_by', 'limit_start', 'limit_page_length'].includes(key)) {
-          queryParams.append(key, params[key]);
-        } else {
-          queryParams.append(key, params[key]);
-        }
-      }
-    }
-    url += `?${queryParams.toString()}`;
-  }
-
-  const response = await fetch(url, {
-    headers: headers,
-    ...fetchOptions, // Use fetchOptions without params
+export const apiMethodRequest = async (methodPath: string, options?: AxiosRequestConfig) => {
+  const response = await axiosInstance.request({
+    url: `/api/method/${methodPath}`,
+    ...options,
   });
-
-  const contentType = response.headers.get('content-type');
-  if (!response.ok || (contentType && !contentType.includes('application/json'))) {
-    const errorText = await response.text();
-    console.error(`API Method Error for ${methodPath}: ${response.status} ${response.statusText}. Response was not JSON or not OK.`, errorText);
-    throw new Error(`Failed to fetch ${methodPath}: ${response.statusText}. Details: ${errorText}`);
-  }
-
-  return response.json();
+  return response.data;
 };
 
 export const getDocCount = async (doctype: string) => {
-  const sid = await getSid();
-  const headers = new Headers({
-    'Content-Type': 'application/json',
+  const response = await apiMethodRequest('frappe.desk.reportview.get_count', {
+    method: 'POST',
+    data: { doctype },
   });
-
-  if (sid) {
-    headers.set('Cookie', `sid=${sid}`);
-  }
-
-  const response = await fetch(
-    `${API_URL}/api/method/frappe.desk.reportview.get_count`,
-    {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify({
-        doctype: doctype,
-      }),
-    }
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to fetch count for ${doctype}`);
-  }
-  const data = await response.json();
-  return data.message;
+  return response.message;
 };
 
 const api = {
   login: async (email: string, password: string) => {
-    const response = await fetch(`${API_URL}/api/method/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        usr: email,
-        pwd: password,
-      }),
+    const response = await axios.post(`${API_URL}/api/method/login`, {
+      usr: email,
+      pwd: password,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Login failed');
+    if (response.status !== 200) {
+      throw new Error(response.data.message || 'Login failed');
     }
 
-    const data = await response.json();
-    const sid = response.headers.get('set-cookie')?.split(';')[0]?.replace('sid=', '');
+    const data = response.data;
+    const cookies = response.headers['set-cookie'];
+    let sid: string | undefined;
+
+    if (cookies) {
+      const sidCookie = cookies.find(cookie => cookie.startsWith('sid='));
+      if (sidCookie) {
+        sid = sidCookie.split(';')[0].replace('sid=', '');
+      }
+    }
 
     if (sid) {
       await setSid(sid);
@@ -143,8 +107,6 @@ const api = {
       console.warn('SID not found in response headers.');
     }
 
-    // You might want to fetch user profile after successful login
-    // For now, we'll return basic user info
     return {
       email: email,
       name: data.full_name || email,
@@ -155,20 +117,7 @@ const api = {
 
   logout: async () => {
     try {
-      const sid = await getSid();
-      const headers = new Headers();
-      if (sid) {
-        headers.set('Cookie', `sid=${sid}`);
-      }
-
-      const response = await fetch(`${API_URL}/api/method/logout`, {
-        method: 'POST',
-        headers: headers,
-      });
-
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
+      await apiMethodRequest('logout', { method: 'POST' });
       await setSid(null); // Clear SID on logout
     } catch (error) {
       console.error('Error during logout:', error);
@@ -177,39 +126,15 @@ const api = {
   },
 
   getDashboardData: async () => {
-    const sid = await getSid();
-    const headers = new Headers();
-    if (sid) {
-      headers.set('Cookie', `sid=${sid}`);
-    }
-
-    const response = await fetch(`${API_URL}/api/resource/Dashboard`, {
-      headers,
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch dashboard data');
-    }
-
-    return response.json();
+    const response = await apiRequest('Dashboard');
+    return response;
   },
-  
+
   forgetPassword: async (email: string) => {
-    const response = await fetch(`${API_URL}/api/method/frappe.core.doctype.user.user.reset_password`, {
+    return await apiMethodRequest('frappe.core.doctype.user.user.reset_password', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email,
-      }),
+      data: { email },
     });
-
-    if (!response.ok) {
-      throw new Error('Password reset failed');
-    }
-
-    return response.json();
   },
 };
 

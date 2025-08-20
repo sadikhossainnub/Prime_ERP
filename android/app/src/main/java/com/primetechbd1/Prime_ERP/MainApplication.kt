@@ -1,4 +1,4 @@
-package com.primeerp
+package com.primetechbd1.Prime_ERP
 
 import android.app.Application
 import android.content.res.Configuration

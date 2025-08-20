@@ -224,19 +224,21 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to ${mode} Sales Order`);
+        const errorData = await response.json();
+        console.error(`Server error: ${response.status} ${response.statusText}`, errorData);
+        throw new Error(`Failed to ${mode} Sales Order: Status ${response.status}. Details: ${errorData?.message || JSON.stringify(errorData) || response.statusText || 'No specific error message from server.'}`);
       }
 
       const responseData = await response.json();
 
       Alert.alert(
         'Success',
-        `Sales Order ${mode === 'create' ? 'created' : 'updated'} successfully!`, 
+        `Sales Order ${mode === 'create' ? 'created' : 'updated'} successfully!`,
         [{ text: 'OK', onPress: () => onSuccess?.(responseData.data) }]
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} Sales Order:`, error);
-      Alert.alert('Error', `Failed to ${mode} Sales Order. Please try again.`);
+      Alert.alert('Error', `Failed to ${mode} Sales Order. ${error.message || 'Please try again.'}`);
     } finally {
       setLoading(false);
     }
@@ -348,6 +350,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
           onItemsChange={handleItemsChange}
           editable={true}
           showTotals={true}
+          showWarehouseField={false}
         />
         {errors['items'] && <Text style={styles.errorText}>{errors['items']}</Text>}
       </View>

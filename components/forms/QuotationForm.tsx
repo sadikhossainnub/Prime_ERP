@@ -365,6 +365,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
           onItemsChange={handleItemsChange}
           editable={true}
           showTotals={true}
+          showWarehouseField={false}
         />
         {errors['items'] && <Text style={styles.errorText}>{errors['items']}</Text>}
       </View>

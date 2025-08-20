@@ -9,7 +9,7 @@ export default function AuthLayout() {
     return null; // Or a loading screen
   }
 
-  if (user && user.authenticated) {
+  if (user && user.email) {
     return <Redirect href="/(tabs)/dashboard" />;
   }
 
@@ -19,7 +19,7 @@ export default function AuthLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="login" />
+      <Stack.Screen name="index" />
       <Stack.Screen name="forgetpassword" />
     </Stack>
   );

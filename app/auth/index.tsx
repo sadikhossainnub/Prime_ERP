@@ -1,4 +1,3 @@
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import StyledButton from "@/components/ui/StyledButton";
 import StyledInput from "@/components/ui/StyledInput";
@@ -6,6 +5,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, Image, StyleSheet } from "react-native";
+import { ThemedText } from "../../components/ThemedText";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginScreen() {
@@ -26,7 +26,7 @@ export default function LoginScreen() {
     try {
       await login(username, password);
       Alert.alert("Login Successful", "Welcome!");
-      router.replace("/(tabs)/dashboard");
+      router.replace("/dashboard"); // Redirect to Main route
     } catch (error: any) {
       console.error("Login error:", error);
       Alert.alert("Login Failed", error.message || "Invalid username or password.");
@@ -48,14 +48,14 @@ export default function LoginScreen() {
     });
 
     if (biometricAuth.success) {
-      // For API token authentication, we can bypass login and go directly to dashboard
-      router.replace('/(tabs)/dashboard');
+      // For API token authentication, we can bypass login and go directly to Main
+      router.replace('/dashboard'); // Redirect to Main route
     }
   };
 
   return (
     <ThemedView style={styles.container}>
-      <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
+      <Image source={require('@/assets/images/logo.jpg')} style={styles.logo} />
       <ThemedText type="title" style={styles.title}>Welcome Back!</ThemedText>
       <ThemedText style={styles.subtitle}>Sign in to continue</ThemedText>
       <StyledInput

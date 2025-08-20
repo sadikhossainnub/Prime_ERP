@@ -1,10 +1,9 @@
-import { ThemedText } from '@/components/ThemedText';
 import { checkForUpdate } from '@/services/update';
 import { Stack } from 'expo-router';
 import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { startLocationTracking, stopLocationTracking } from '../services/locationTracking';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LoadingScreen from './loading';
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
@@ -25,17 +24,7 @@ function RootLayoutNav() {
   console.log('RootLayoutNav - isLoading:', isLoading, 'user:', user);
 
   if (isLoading) {
-    return (
-      <View style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#ffffff'
-      }}>
-        <ActivityIndicator size="large" color="#4f46e5" />
-        <ThemedText style={{ marginTop: 12, fontSize: 16 }}>Loading...</ThemedText>
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (

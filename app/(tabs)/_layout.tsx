@@ -54,12 +54,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="sellingmodulemenu"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
-      <Tabs.Screen
         name="quotationlist"
         options={{
           href: null, // Hide from tab bar
@@ -103,6 +97,12 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="salesorderform"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+<Tabs.Screen
+        name="sellingmodulemenu"
         options={{
           href: null, // Hide from tab bar
         }}

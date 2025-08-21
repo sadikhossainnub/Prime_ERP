@@ -140,7 +140,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
           <Text style={styles.label}>Amount</Text>
           <TextInput
             style={[styles.input, styles.readOnlyInput]}
-            value={item.amount?.toFixed(2) || '0.00'}
+            value={`BDT ${item.amount?.toFixed(2) || '0.00'}`}
             editable={false}
           />
         </View>

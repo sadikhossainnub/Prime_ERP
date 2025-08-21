@@ -21,7 +21,7 @@ const MAPPING = {
   'cart': 'shopping-cart',
   'archive': 'inventory',
   'users': 'group',
-  'dollar-sign': 'attach-money',
+  'dollar-sign': 'currency-bdt',
   'briefcase': 'business-center',
 };
 

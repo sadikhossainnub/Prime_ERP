@@ -1,4 +1,4 @@
-package com.primetechbd1.Prime_ERP
+package com.primetechbd.Prime_ERP
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

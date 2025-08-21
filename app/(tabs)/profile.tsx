@@ -1,4 +1,3 @@
-import { useAuth } from '@/app/contexts/AuthContext';
 import { ThemedText } from '@/components/ThemedText';
 import { getUserProfile, UserProfile } from '@/services/profile';
 import React, { useEffect, useState } from 'react';
@@ -13,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useAuth } from '../AuthContext';
 
 export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);

@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.primetechbd1.Prime_ERP'
+    namespace 'com.primetechbd.Prime_ERP'
     defaultConfig {
-        applicationId 'com.primetechbd1.Prime_ERP'
+        applicationId 'com.primetechbd.Prime_ERP'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

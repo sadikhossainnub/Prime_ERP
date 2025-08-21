@@ -1,3 +1,4 @@
+import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import StyledButton from "@/components/ui/StyledButton";
 import StyledInput from "@/components/ui/StyledInput";
@@ -5,8 +6,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, Image, StyleSheet } from "react-native";
-import { ThemedText } from "../../components/ThemedText";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "./AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -20,13 +20,13 @@ export default function LoginScreen() {
       const compatible = await LocalAuthentication.hasHardwareAsync();
       setIsBiometricSupported(compatible);
     })();
-  });
+  }, []);
 
   const handleLogin = async () => {
     try {
       await login(username, password);
       Alert.alert("Login Successful", "Welcome!");
-      router.replace("/dashboard"); // Redirect to Main route
+      router.replace("/(tabs)/dashboard"); // Redirect to Main route
     } catch (error: any) {
       console.error("Login error:", error);
       Alert.alert("Login Failed", error.message || "Invalid username or password.");
@@ -49,7 +49,7 @@ export default function LoginScreen() {
 
     if (biometricAuth.success) {
       // For API token authentication, we can bypass login and go directly to Main
-      router.replace('/dashboard'); // Redirect to Main route
+      router.replace('/(tabs)/dashboard'); // Redirect to Main route
     }
   };
 

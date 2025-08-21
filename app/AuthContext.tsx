@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import api, { getSid, setSid } from '../../services/api'; // Import getSid and setSid
-import { getCurrentUserInfo, UserProfile } from '../../services/profile'; // Import UserProfile
+import api, { getSid, setSid } from '../services/api'; // Import getSid and setSid
+import { getCurrentUserInfo, UserProfile } from '../services/profile'; // Import UserProfile
 
 const AUTH_STORAGE_KEY = 'prime_erp_auth_data'; // Consider if this is still needed as SID is stored in API service
 

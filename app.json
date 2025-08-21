@@ -24,7 +24,8 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "FOREGROUND_SERVICE",
-        "INTERNET"
+        "INTERNET",
+        "REQUEST_INSTALL_PACKAGES"
       ]
     },
     "web": {

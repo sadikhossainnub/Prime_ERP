@@ -1,11 +1,31 @@
 import * as Application from 'expo-application';
 import * as FileSystem from 'expo-file-system';
-import * as Linking from 'expo-linking';
+import * as IntentLauncher from 'expo-intent-launcher';
 import { Alert, Platform } from 'react-native';
 
 const UPDATE_URL = "https://primetechbd.xyz/wp-content/uploads/App/app-updates.json";
 
+// A more robust version comparison function
+const compareVersions = (v1: string, v2: string) => {
+    const parts1 = v1.split('.').map(Number);
+    const parts2 = v2.split('.').map(Number);
+    const len = Math.max(parts1.length, parts2.length);
+
+    for (let i = 0; i < len; i++) {
+        const p1 = parts1[i] || 0;
+        const p2 = parts2[i] || 0;
+        if (p1 > p2) return 1;
+        if (p1 < p2) return -1;
+    }
+    return 0;
+};
+
 export const checkForUpdate = async () => {
+    if (__DEV__) {
+        console.log("Skipping update check in development mode.");
+        return;
+    }
+
     try {
         const response = await fetch(UPDATE_URL);
         const data = await response.json();
@@ -14,9 +34,14 @@ export const checkForUpdate = async () => {
         const apkUrl = data.apk_url;
         const releaseNotes = data.release_notes || "No release notes provided.";
 
-        const currentAppVersion = Application.nativeApplicationVersion || "1.0.0"; // Fallback
+        const currentAppVersion = Application.nativeApplicationVersion;
 
-        if (Platform.OS === 'android' && latestVersion !== currentAppVersion) {
+        if (!currentAppVersion) {
+            console.warn("Could not determine current app version.");
+            return;
+        }
+
+        if (Platform.OS === 'android' && compareVersions(latestVersion, currentAppVersion) > 0) {
             Alert.alert(
                 "Update Available",
                 `A new version (${latestVersion}) is available.\n\n${releaseNotes}`,
@@ -28,11 +53,6 @@ export const checkForUpdate = async () => {
                     },
                 ]
             );
-        } else if (Platform.OS === 'ios') {
-            // For iOS, typically you'd redirect to the App Store.
-            // You'd need to get the App Store URL from your WordPress JSON or hardcode it.
-            // For now, we'll just log a message.
-            console.log("iOS updates are typically handled via the App Store.");
         }
     } catch (error) {
         console.error("Update check failed", error);
@@ -40,30 +60,27 @@ export const checkForUpdate = async () => {
 };
 
 const downloadAndInstall = async (apkUrl: string) => {
-    const filename = apkUrl.split('/').pop() || 'update.apk';
-    const downloadPath = `${FileSystem.cacheDirectory}${filename}`;
-
     try {
+        const filename = apkUrl.split('/').pop() || 'update.apk';
+        const downloadPath = `${FileSystem.cacheDirectory}${filename}`;
+
+        console.log(`Downloading update from ${apkUrl} to ${downloadPath}`);
         const { uri } = await FileSystem.downloadAsync(apkUrl, downloadPath);
         console.log('Finished downloading to ', uri);
 
-        // This part is tricky. Directly installing an APK requires specific permissions
-        // and intent handling on Android. Expo's Linking.openURL might not directly
-        // trigger an APK installation intent for arbitrary files.
-        // For a more robust solution outside of Play Store, you might need to
-        // eject from Expo or use a custom native module.
-        // However, for basic prompting, we can try to open the file,
-        // which might prompt the user to choose an installer.
-
-        await Linking.openURL(uri);
-
-        // Alternatively, if you want to direct the user to enable "Install unknown apps"
-        // before attempting installation, you might use Linking.openSettings() first,
-        // but this can be disruptive.
-        // Linking.openSettings();
+        if (Platform.OS === 'android') {
+            const contentUri = await FileSystem.getContentUriAsync(uri);
+            console.log('Got content URI:', contentUri);
+            
+            IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+                data: contentUri,
+                flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+                type: 'application/vnd.android.package-archive',
+            });
+        }
 
     } catch (error) {
         console.error("APK Download or installation error", error);
-        Alert.alert("Update Failed", "Could not download or install the update.");
+        Alert.alert("Update Failed", "Could not download or install the update. Please try again later.");
     }
 };

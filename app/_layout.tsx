@@ -1,5 +1,5 @@
 import { checkForUpdate } from '@/services/update';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { startLocationTracking, stopLocationTracking } from '../services/locationTracking';
@@ -7,16 +7,19 @@ import { AuthProvider, useAuth } from './AuthContext';
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     checkForUpdate();
 
     const setupLocationTracking = async () => {
-      if (!isLoading) { // Ensure authentication state is loaded
+      if (!isLoading) {
         if (user) {
+          router.replace('/dashboard' as any);
           console.log('User logged in, starting location tracking.');
           await startLocationTracking();
         } else {
+          router.replace('/login');
           console.log('User logged out, stopping location tracking.');
           await stopLocationTracking();
         }
@@ -32,20 +35,15 @@ function RootLayoutNav() {
 
   console.log('RootLayoutNav - isLoading:', isLoading, 'user:', user);
 
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
+
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      {user ? (
-        <>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="sellingmodulemenu" options={{ headerShown: false }} />
-        </>
-      ) : (
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-      )}
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="login" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="forgetpassword" />
     </Stack>
   );
 }

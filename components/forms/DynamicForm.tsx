@@ -222,18 +222,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       // Create sections based on field patterns or you can enhance this logic
       let sectionTitle = 'General Information';
       
-      if (field.fieldname.includes('address') || field.fieldname.includes('city') || 
-          field.fieldname.includes('state') || field.fieldname.includes('country') || 
-          field.fieldname.includes('pincode')) {
-        sectionTitle = 'Address Information';
-      } else if (field.fieldname.includes('email') || field.fieldname.includes('phone') || 
+      if (field.fieldname.includes('email') || field.fieldname.includes('phone') ||
                  field.fieldname.includes('mobile') || field.fieldname.includes('contact')) {
         sectionTitle = 'Contact Information';
-      } else if (field.fieldname.includes('rate') || field.fieldname.includes('price') || 
+      } else if (field.fieldname.includes('rate') || field.fieldname.includes('price') ||
                  field.fieldname.includes('amount') || field.fieldname.includes('tax') ||
                  field.fieldname.includes('currency')) {
         sectionTitle = 'Pricing Information';
-      } else if (field.fieldname.includes('stock') || field.fieldname.includes('qty') || 
+      } else if (field.fieldname.includes('stock') || field.fieldname.includes('qty') ||
                  field.fieldname.includes('inventory') || field.fieldname.includes('warehouse')) {
         sectionTitle = 'Inventory Information';
       }

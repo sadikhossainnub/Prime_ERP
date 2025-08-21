@@ -1,11 +1,25 @@
 import { MobileLocation } from '@/types/doctypes';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
 import { apiRequest } from './api';
-import { getCurrentUserInfo } from './profile';
 
 const LOCATION_TRACKING_TASK = 'background-location-task';
+
+// Helper function to get saved credentials
+const getLocationTrackingCredentials = async () => {
+  try {
+    const credentials = await AsyncStorage.getItem('LOCATION_TRACKING_CREDENTIALS');
+    if (credentials) {
+      return JSON.parse(credentials);
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to retrieve location tracking credentials:', error);
+    return null;
+  }
+};
 
 if (Platform.OS !== 'web') {
   TaskManager.defineTask(LOCATION_TRACKING_TASK, async ({ data, error }) => {
@@ -15,11 +29,14 @@ if (Platform.OS !== 'web') {
     }
     if (data) {
       const { locations } = data as { locations: Location.LocationObject[] };
-      const userInfo = await getCurrentUserInfo();
-      const userEmail = userInfo.email;
+      // const userInfo = await getCurrentUserInfo(); // Removed to use saved credentials
+      // const userEmail = userInfo.email;
+
+      const credentials = await getLocationTrackingCredentials();
+      const userEmail = credentials?.email; // Use email from saved credentials
 
       if (!userEmail) {
-        console.error('User email not found. Cannot post location.');
+        console.error('User email not found from saved credentials. Cannot post location.');
         return;
       }
 
@@ -33,6 +50,8 @@ if (Platform.OS !== 'web') {
         try {
           // Assuming your backend has a method to receive location data
           // You might need to adjust the endpoint and payload structure
+          // If the API requires authentication, you might need to pass credentials here
+          // For now, assuming apiRequest handles authentication via SID or similar
           await apiRequest('Mobile Location', {
             method: 'POST',
             data: mobileLocation,
@@ -49,6 +68,14 @@ if (Platform.OS !== 'web') {
 export const startLocationTracking = async (): Promise<boolean> => {
   if (Platform.OS === 'web') {
     console.log('Location tracking is not supported on web.');
+    return false;
+  }
+
+  // Check if credentials are saved before requesting permissions
+  const credentials = await getLocationTrackingCredentials();
+  if (!credentials) {
+    console.warn('No location tracking credentials found. Please log in first.');
+    alert('Please log in to enable location tracking.');
     return false;
   }
 

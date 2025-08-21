@@ -38,21 +38,27 @@ axiosInstance.interceptors.request.use(async (config) => {
   return config;
 });
 
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    if (error.response) {
-      console.error(`API Error for ${error.config?.url}: ${error.response.status} ${error.response.statusText}.`, error.response.data);
-      throw new Error(`Failed to fetch ${error.config?.url}: ${error.response.statusText}. Details: ${JSON.stringify(error.response.data)}`);
-    } else if (error.request) {
-      console.error('API Error: No response received.', error.request);
-      throw new Error('Network error: Unable to connect to the server.');
-    } else {
-      console.error('API Error: Request setup failed.', error.message);
-      throw new Error(`Request failed: ${error.message}`);
+export const setupAxiosInterceptors = (onSessionExpired: () => void) => {
+  axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+      if (error.response) {
+        if (error.response.status === 401) {
+          console.log('Session expired. Logging out.');
+          onSessionExpired();
+        }
+        console.error(`API Error for ${error.config?.url}: ${error.response.status} ${error.response.statusText}.`, error.response.data);
+        throw new Error(`Failed to fetch ${error.config?.url}: ${error.response.statusText}. Details: ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        console.error('API Error: No response received.', error.request);
+        throw new Error('Network error: Unable to connect to the server.');
+      } else {
+        console.error('API Error: Request setup failed.', error.message);
+        throw new Error(`Request failed: ${error.message}`);
+      }
     }
-  }
-);
+  );
+};
 
 export const apiRequest = async (endpoint: string, options?: AxiosRequestConfig) => {
   const response = await axiosInstance.request({
@@ -116,13 +122,26 @@ const api = {
   },
 
   logout: async () => {
-    try {
-      await apiMethodRequest('logout', { method: 'POST' });
-      await setSid(null); // Clear SID on logout
-    } catch (error) {
-      console.error('Error during logout:', error);
-      throw error;
+    const sid = await getSid();
+    if (sid) {
+      try {
+        await axios.post(
+          `${API_URL}/api/method/logout`,
+          {},
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Cookie: `sid=${sid}`,
+            },
+            withCredentials: true,
+          }
+        );
+        console.log('Successfully logged out from API.');
+      } catch (error) {
+        console.error('API logout failed, but proceeding with local cleanup:', error);
+      }
     }
+    await setSid(null); // Always clear local SID
   },
 
   getDashboardData: async () => {
@@ -133,7 +152,7 @@ const api = {
   forgetPassword: async (email: string) => {
     return await apiMethodRequest('frappe.core.doctype.user.user.reset_password', {
       method: 'POST',
-      data: { email },
+      data: { user: email },
     });
   },
 };

@@ -180,16 +180,6 @@ export const getCommonDoctypeFields = async (doctype: string): Promise<Doctype[]
     ],
     'Item': [
   {
-    "fieldname": "workflow_state",
-    "label": "Workflow State",
-    "fieldtype": "Link"
-  },
-  {
-    "fieldname": "naming_series",
-    "label": "Series",
-    "fieldtype": "Select"
-  },
-  {
     "fieldname": "item_code",
     "label": "Item Code",
     "fieldtype": "Data"

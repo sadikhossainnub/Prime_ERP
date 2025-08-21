@@ -176,7 +176,7 @@ const ItemTable: React.FC<ItemTableProps> = ({
           
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total Amount:</Text>
-            <Text style={styles.totalAmount}>BDT {totalAmount.toFixed(2)}</Text>
+            <Text style={styles.totalAmount}>৳{totalAmount.toFixed(2)}</Text>
           </View>
           
           <View style={styles.separator} />
@@ -185,7 +185,7 @@ const ItemTable: React.FC<ItemTableProps> = ({
           <View style={styles.totalRow}>
             <Text style={[styles.totalLabel, styles.grandTotalLabel]}>Grand Total:</Text>
             <Text style={[styles.totalAmount, styles.grandTotalAmount]}>
-              BDT {totalAmount.toFixed(2)}
+              ৳{totalAmount.toFixed(2)}
             </Text>
           </View>
         </View>

@@ -5,18 +5,24 @@ import { getCurrentUserInfo, UserProfile } from '../services/profile';
 
 const AUTH_STORAGE_KEY = 'prime_erp_auth_data';
 
+import * as SecureStore from 'expo-secure-store';
+
 interface AuthContextProps {
   user: UserProfile | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<UserProfile | null>;
   logout: () => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AuthContext = createContext<AuthContextProps>({
   user: null,
   isLoading: false,
-  login: async () => {},
+  login: async () => null,
   logout: async () => {},
+  setUser: () => {},
+  setIsLoading: () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -65,10 +71,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      await api.login(email, password);
+      const response = await api.login(email, password);
       const userInfo = await getCurrentUserInfo();
       setUser(userInfo);
       console.log('Login successful for user:', userInfo.email);
+
+      // After successful login, you would ideally get the API key and secret.
+      // For this example, we'll assume you get them from the login response or another API call.
+      // We'll use placeholders here.
+      const apiKey = 'dummy_api_key'; // Replace with actual API key retrieval
+      const apiSecret = 'dummy_api_secret'; // Replace with actual API secret retrieval
+
+      await SecureStore.setItemAsync('api_key', apiKey);
+      await SecureStore.setItemAsync('api_secret', apiSecret);
+
 
       try {
         await AsyncStorage.setItem('LOCATION_TRACKING_CREDENTIALS', JSON.stringify({ email, password }));
@@ -76,6 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (storageError) {
         console.error('Failed to save credentials for location tracking:', storageError);
       }
+      return userInfo;
     } catch (error) {
       console.error('Login failed:', error);
       setUser(null);
@@ -87,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, setUser, setIsLoading }}>
       {children}
     </AuthContext.Provider>
   );

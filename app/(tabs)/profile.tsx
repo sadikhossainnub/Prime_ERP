@@ -1,5 +1,6 @@
 import { ThemedText } from '@/components/ThemedText';
 import { getUserProfile, UserProfile } from '@/services/profile';
+import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,6 +9,7 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  Switch,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -20,6 +22,30 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { logout, user } = useAuth();
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+
+  useEffect(() => {
+    const checkBiometricStatus = async () => {
+      const apiKey = await SecureStore.getItemAsync('api_key');
+      setBiometricEnabled(!!apiKey);
+    };
+    checkBiometricStatus();
+  }, []);
+
+  const handleBiometricToggle = async (value: boolean) => {
+    setBiometricEnabled(value);
+    if (value) {
+      // For this example, we'll save dummy credentials.
+      // In a real app, you'd get these after a successful login.
+      await SecureStore.setItemAsync('api_key', 'dummy_api_key');
+      await SecureStore.setItemAsync('api_secret', 'dummy_api_secret');
+      Alert.alert('Biometric login enabled.');
+    } else {
+      await SecureStore.deleteItemAsync('api_key');
+      await SecureStore.deleteItemAsync('api_secret');
+      Alert.alert('Biometric login disabled.');
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -263,6 +289,30 @@ export default function ProfileScreen() {
                 {profile?.enabled ? 'Active' : 'Inactive'}
               </ThemedText>
             </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Security Section */}
+      <View style={styles.section}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Security
+        </ThemedText>
+        <View style={styles.card}>
+          <View style={styles.infoRow}>
+            <Icon name="fingerprint" size={20} color="#6b7280" />
+            <View style={styles.infoContent}>
+              <ThemedText style={styles.infoLabel}>Biometric Login</ThemedText>
+              <ThemedText style={styles.infoValue}>
+                Enable or disable biometric login
+              </ThemedText>
+            </View>
+            <Switch
+              value={biometricEnabled}
+              onValueChange={handleBiometricToggle}
+              trackColor={{ false: '#767577', true: '#81b0ff' }}
+              thumbColor={biometricEnabled ? '#4f46e5' : '#f4f3f4'}
+            />
           </View>
         </View>
       </View>

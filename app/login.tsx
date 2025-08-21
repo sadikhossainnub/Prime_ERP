@@ -1,7 +1,11 @@
 import StyledButton from '@/components/ui/StyledButton';
 import StyledInput from '@/components/ui/StyledInput';
+import { BASE_URL } from '@/constants/config';
+import axios from 'axios';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { Link, Redirect } from 'expo-router';
-import React, { useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,12 +17,55 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAuth } from './AuthContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, isLoading, user } = useAuth();
+  const { login, isLoading, user, setIsLoading, setUser } = useAuth();
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+
+  useEffect(() => {
+    const checkBiometricStatus = async () => {
+      const apiKey = await SecureStore.getItemAsync('api_key');
+      setBiometricAvailable(!!apiKey);
+    };
+    checkBiometricStatus();
+    biometricLogin();
+  }, []);
+
+  const biometricLogin = async () => {
+    const compatible = await LocalAuthentication.hasHardwareAsync();
+    if (!compatible) {
+      return;
+    }
+
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: 'Login with Biometrics',
+    });
+
+    if (result.success) {
+      const apiKey = await SecureStore.getItemAsync('api_key');
+      const apiSecret = await SecureStore.getItemAsync('api_secret');
+
+      if (apiKey && apiSecret) {
+        try {
+          setIsLoading(true);
+          const res = await axios.get(`${BASE_URL}/api/method/frappe.auth.get_logged_user`, {
+            headers: {
+              Authorization: `token ${apiKey}:${apiSecret}`,
+            },
+          });
+          setUser(res.data.message);
+        } catch (error) {
+          Alert.alert('Biometric Login Failed', 'Please log in with your username and password.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -26,7 +73,23 @@ export default function LoginScreen() {
       return;
     }
     try {
-      await login(email, password);
+      const loggedInUser = await login(email, password);
+      if (loggedInUser) {
+        Alert.alert(
+          'Enable Biometric Login',
+          'Would you like to enable biometric login for future use?',
+          [
+            { text: 'No', style: 'cancel' },
+            {
+              text: 'Yes',
+              onPress: () => {
+                setBiometricAvailable(true);
+                Alert.alert('Biometric login enabled!');
+              },
+            },
+          ]
+        );
+      }
     } catch (error: any) {
       Alert.alert(
         'Login Failed',
@@ -77,7 +140,14 @@ export default function LoginScreen() {
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
           </TouchableOpacity>
         </Link>
-        <StyledButton title="Login" onPress={handleLogin} />
+        <View style={styles.loginButtonContainer}>
+          <StyledButton title="Login" onPress={handleLogin} style={{ flex: 1 }} />
+          {biometricAvailable && (
+            <TouchableOpacity onPress={biometricLogin} style={styles.biometricIconContainer}>
+              <Icon name="fingerprint" size={32} color="#4f46e5" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -123,5 +193,16 @@ const styles = StyleSheet.create({
     color: '#4f46e5',
     marginBottom: 24,
     fontWeight: '600',
+  },
+  loginButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  biometricIconContainer: {
+    marginLeft: 16,
+    padding: 8,
+    borderRadius: 50,
+    backgroundColor: '#f3f4f6',
   },
 });

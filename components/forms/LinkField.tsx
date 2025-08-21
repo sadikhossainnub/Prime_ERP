@@ -9,9 +9,9 @@ import {
   ViewStyle
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
-import { BASE_URL } from '../../constants/config';
-import { getAuthHeaders } from '../../services/authHeaders';
+import { apiRequest } from '../../services/api';
 import { getDoctypes } from '../../services/doctype';
+import { debounce } from '../../utils/debounce';
 
 interface LinkFieldProps {
   doctype: string;
@@ -21,7 +21,7 @@ interface LinkFieldProps {
   placeholder?: string;
   editable?: boolean;
   error?: string;
-  filters?: [string, string, string][];
+  filters?: (string[] | (string[] | 'or')[])[]; // Allow for nested filter conditions for OR
 }
 
 interface LinkOption {
@@ -59,29 +59,71 @@ const LinkField: React.FC<LinkFieldProps> = ({
         fetchedOptions = doctypeNames.map(name => ({ name }));
       } else {
         // Use the generic resource fetcher for other doctypes
-        const headers = await getAuthHeaders();
-        const urlObject = new URL(`${BASE_URL}/api/resource/${doctype}`);
-        urlObject.searchParams.append('order_by', 'modified desc');
-
-        if (propFilters) {
-          urlObject.searchParams.append('filters', JSON.stringify(propFilters));
+        // Dynamically determine fields to fetch. Always include 'name' and 'title'.
+        // Add other common display fields if they are relevant for the doctype.
+        const dynamicFieldsToFetch = ['name'];
+        if (doctype === 'Customer') {
+          dynamicFieldsToFetch.push('customer_name');
+        } else if (doctype === 'Item') {
+          dynamicFieldsToFetch.push('item_name');
         }
+        // Add 'title' for doctypes other than 'UOM'
+        if (doctype !== 'UOM') {
+          dynamicFieldsToFetch.push('title');
+        }
+
+        // Ensure unique fields
+        const fieldsToFetch = Array.from(new Set(dynamicFieldsToFetch));
+
+        const params: any = {
+          fields: JSON.stringify(fieldsToFetch),
+          order_by: 'modified desc',
+          limit_page_length: 999999, // Remove API limit
+        };
+
+        let allFilters: (string[] | (string[] | 'or')[])[] = propFilters ? [...propFilters] : [];
 
         if (query.trim()) {
-          urlObject.searchParams.append('q', query.trim());
+          const searchQuery = `%${query.trim()}%`;
+          const searchConditions: string[][] = [
+            ['name', 'like', searchQuery]
+          ];
+          if (doctype !== 'UOM' && dynamicFieldsToFetch.includes('title')) { // Only add title search if not UOM
+            searchConditions.push(['title', 'like', searchQuery]);
+          }
+          if (dynamicFieldsToFetch.includes('customer_name')) {
+            searchConditions.push(['customer_name', 'like', searchQuery]);
+          }
+          if (dynamicFieldsToFetch.includes('item_name')) {
+            searchConditions.push(['item_name', 'like', searchQuery]);
+          }
+          
+          if (searchConditions.length > 0) {
+            if (searchConditions.length === 1) {
+              // If only one search condition, add it directly to allFilters
+              allFilters.push(searchConditions[0]);
+            } else {
+              // If multiple search conditions, combine them with "or"
+              const combinedOrConditions: (string[] | 'or')[] = [];
+              for (let i = 0; i < searchConditions.length; i++) {
+                combinedOrConditions.push(searchConditions[i]);
+                if (i < searchConditions.length - 1) {
+                  combinedOrConditions.push('or');
+                }
+              }
+              allFilters.push(combinedOrConditions); // This adds the OR group as one element
+            }
+          }
         }
-
-        const url = urlObject.toString();
         
-        console.log('LinkField fetchOptions URL:', url);
-        const response = await fetch(url, { method: 'GET', headers });
-
-        if (!response.ok) {
-          console.error('LinkField fetchOptions response not ok:', response.status, response.statusText);
-          throw new Error(`Failed to fetch ${doctype} options`);
+        if (allFilters.length > 0) {
+          params.filters = JSON.stringify(allFilters);
         }
 
-        const data = await response.json();
+        const data = await apiRequest(doctype, {
+          method: 'GET',
+          params: params,
+        });
         console.log('LinkField fetchOptions response data:', data);
         fetchedOptions = data.data || [];
       }
@@ -113,16 +155,10 @@ const LinkField: React.FC<LinkFieldProps> = ({
     if (!value || !doctype) return;
 
     try {
-      const headers = await getAuthHeaders();
-      const response = await fetch(`${BASE_URL}/api/resource/${doctype}/${value}`, {
+      const data = await apiRequest(`${doctype}/${value}`, {
         method: 'GET',
-        headers,
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSelectedOption(data.data);
-      }
+      setSelectedOption(data.data);
     } catch (error) {
       console.error(`Error fetching ${doctype} details:`, error);
     }
@@ -182,7 +218,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
         searchPlaceHolderColor={'#999'}
         renderSearchInputLeftIcon={() => <Ionicons name="search" style={styles.searchIcon} />}
         onFocus={() => fetchOptions('')}
-        onChangeSearchInputText={(text) => fetchOptions(text)}
+        onChangeSearchInputText={debounce((text: string) => fetchOptions(text), 500)}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>

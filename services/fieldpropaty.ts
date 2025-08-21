@@ -192,27 +192,20 @@ export const getCommonDoctypeFields = async (doctype: string): Promise<Doctype[]
   {
     "fieldname": "item_group",
     "label": "Item Group",
-    "fieldtype": "Link"
+    "fieldtype": "Link",
+    "options": "Item Group",
+    "default": "Products"
   },
   {
     "fieldname": "stock_uom",
     "label": "Default Unit of Measure",
-    "fieldtype": "Link"
+    "fieldtype": "Link",
+    "options": "UOM"
   },
   {
     "fieldname": "item_type",
     "label": "Item Type",
     "fieldtype": "Select"
-  },
-  {
-    "fieldname": "disabled",
-    "label": "Disabled",
-    "fieldtype": "Check"
-  },
-  {
-    "fieldname": "allow_alternative_item",
-    "label": "Allow Alternative Item",
-    "fieldtype": "Check"
   },
   {
     "fieldname": "is_stock_item",
@@ -243,41 +236,6 @@ export const getCommonDoctypeFields = async (doctype: string): Promise<Doctype[]
     "fieldname": "standard_rate",
     "label": "Standard Selling Rate",
     "fieldtype": "Currency"
-  },
-  {
-    "fieldname": "is_fixed_asset",
-    "label": "Is Fixed Asset",
-    "fieldtype": "Check"
-  },
-  {
-    "fieldname": "auto_create_assets",
-    "label": "Auto Create Assets on Purchase",
-    "fieldtype": "Check"
-  },
-  {
-    "fieldname": "is_grouped_asset",
-    "label": "Create Grouped Asset",
-    "fieldtype": "Check"
-  },
-  {
-    "fieldname": "asset_category",
-    "label": "Asset Category",
-    "fieldtype": "Link"
-  },
-  {
-    "fieldname": "asset_naming_series",
-    "label": "Asset Naming Series",
-    "fieldtype": "Select"
-  },
-  {
-    "fieldname": "over_delivery_receipt_allowance",
-    "label": "Over Delivery/Receipt Allowance (%)",
-    "fieldtype": "Float"
-  },
-  {
-    "fieldname": "over_billing_allowance",
-    "label": "Over Billing Allowance (%)",
-    "fieldtype": "Float"
   },
   {
     "fieldname": "image",

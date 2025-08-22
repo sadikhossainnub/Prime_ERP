@@ -8,15 +8,13 @@ interface ItemTableProps {
   onItemsChange: (items: ItemRowData[]) => void;
   editable?: boolean;
   showTotals?: boolean;
-  showWarehouseField?: boolean;
 }
 
 const ItemTable: React.FC<ItemTableProps> = ({
   items,
   onItemsChange,
   editable = true,
-  showTotals = true,
-  showWarehouseField = true
+  showTotals = true
 }) => {
   const handleItemChange = async (index: number, field: keyof ItemRowData, value: any) => {
     const updatedItems = [...items];
@@ -82,7 +80,6 @@ const ItemTable: React.FC<ItemTableProps> = ({
       uom: '',
       rate: 0,
       amount: 0,
-      warehouse: '',
     };
     onItemsChange([...items, newItem]);
   };
@@ -159,7 +156,6 @@ const ItemTable: React.FC<ItemTableProps> = ({
               onItemChange={handleItemChange}
               onRemove={handleRemoveItem}
               showRemoveButton={editable && items.length > 1}
-              showWarehouseField={showWarehouseField}
             />
           ))
         )}

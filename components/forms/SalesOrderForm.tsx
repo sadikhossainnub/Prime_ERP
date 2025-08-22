@@ -1,6 +1,7 @@
+import axios, { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { API_KEY, API_SECRET, BASE_URL } from '../../constants/config';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { apiRequest } from '../../services/api';
 import { Doctype } from '../../types/doctypes';
 import StyledButton from '../ui/StyledButton';
 import DynamicField from './DynamicField';
@@ -54,6 +55,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [fieldsLoading, setFieldsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchFields();
@@ -78,7 +80,6 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
           uom: '',
           rate: 0,
           amount: 0,
-          warehouse: '',
         },
       ]);
     }
@@ -124,12 +125,6 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "in_standard_filter": 1, "print_hide": 1, "reqd": 1
       },
       {
-        "name": "territory", "label": "Territory", "fieldname": "territory", "fieldtype": "Link", "options": "Territory", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
-      },
-      {
         "name": "total_qty", "label": "Total Quantity", "fieldname": "total_qty", "fieldtype": "Float", "options": "", "default": "",
         "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
         "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
@@ -143,9 +138,9 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
       },
       {
         "name": "in_words", "label": "In Words", "fieldname": "in_words", "fieldtype": "Data", "options": "", "default": "",
-        "mandatory": 0, "read_only": 1, "hidden": 0, "depends_on": "", "description": "", "length": 240, "precision": "",
+        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 240, "precision": "",
         "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1, "width": "200px"
+        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 0, "width": "200px"
       }
     ] as Doctype[];
     const filteredFields = salesOrderFields.filter((field: Doctype) =>
@@ -197,8 +192,9 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
 
     setLoading(true);
     try {
+      const { title, ...restFormData } = formData;
       const submissionData = {
-        ...formData,
+        ...restFormData,
         items: items.map(item => ({
           item_code: item.item_code,
           item_name: item.item_name,
@@ -207,38 +203,47 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
           uom: item.uom,
           rate: item.rate,
           amount: item.amount,
-          warehouse: item.warehouse,
         }))
       };
 
       const endpoint = mode === 'create' ? 'Sales Order' : `Sales Order/${initialData.name || formData.name}`;
       const method = mode === 'create' ? 'POST' : 'PUT';
       
-      const response = await fetch(`${BASE_URL}/api/resource/${endpoint}`, {
+      const response = await apiRequest(endpoint, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `token ${API_KEY}:${API_SECRET}`,
-        },
-        body: JSON.stringify(submissionData),
+        data: submissionData,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error(`Server error: ${response.status} ${response.statusText}`, errorData);
-        throw new Error(`Failed to ${mode} Sales Order: Status ${response.status}. Details: ${errorData?.message || JSON.stringify(errorData) || response.statusText || 'No specific error message from server.'}`);
-      }
-
-      const responseData = await response.json();
 
       Alert.alert(
         'Success',
         `Sales Order ${mode === 'create' ? 'created' : 'updated'} successfully!`,
-        [{ text: 'OK', onPress: () => onSuccess?.(responseData.data) }]
+        [{ text: 'OK', onPress: () => {
+          onSuccess?.(response.data);
+          if (mode === 'create') {
+            setFormData({});
+            setItems([
+              {
+                item_code: '',
+                item_name: '',
+                description: '',
+                qty: 1,
+                uom: '',
+                rate: 0,
+                amount: 0,
+              },
+            ]);
+          }
+        }}]
       );
     } catch (error: any) {
-      console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} Sales Order:`, error);
-      Alert.alert('Error', `Failed to ${mode} Sales Order. ${error.message || 'Please try again.'}`);
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} Sales Order:`, axiosError.message, axiosError.response?.data);
+        Alert.alert('Error', `Failed to ${mode} Sales Order: ${String((axiosError.response?.data as any)?.message || axiosError.message)}`);
+      } else {
+        console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} Sales Order:`, error);
+        Alert.alert('Error', `Failed to ${mode} Sales Order. ${error.message || 'Please try again.'}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -276,6 +281,25 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
     setErrors(newErrors);
   };
 
+
+  const onRefresh = React.useCallback(() => {
+    setIsRefreshing(true);
+    setFormData({}); // Clear form data
+    setItems([ // Reset items to initial state
+      {
+        item_code: '',
+        item_name: '',
+        description: '',
+        qty: 1,
+        uom: '',
+        rate: 0,
+        amount: 0,
+      },
+    ]);
+    // If there were any fetched fields, you might want to re-fetch them here
+    // fetchFields();
+    setIsRefreshing(false);
+  }, []);
 
   const groupFieldsIntoSections = (fields: Doctype[]): FormSection[] => {
     const sections: FormSection[] = [];
@@ -323,7 +347,16 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
 
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+        />
+      }
+    >
       <Text style={styles.title}>
         {mode === 'create' ? 'Create Sales Order' : 'Edit Sales Order'}
       </Text>
@@ -350,7 +383,6 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
           onItemsChange={handleItemsChange}
           editable={true}
           showTotals={true}
-          showWarehouseField={false}
         />
         {errors['items'] && <Text style={styles.errorText}>{errors['items']}</Text>}
       </View>

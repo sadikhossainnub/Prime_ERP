@@ -1,18 +1,18 @@
 import { BASE_URL } from '@/constants/config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import * as SecureStore from 'expo-secure-store';
 
 const API_URL = BASE_URL;
-const SID_STORAGE_KEY = 'prime_erp_sid';
+const SID_STORAGE_KEY = 'prime_erp_sid'; // Using SecureStore for SID
 
 let currentSid: string | null = null;
 
 export const setSid = async (sid: string | null) => {
   currentSid = sid;
   if (sid) {
-    await AsyncStorage.setItem(SID_STORAGE_KEY, sid);
+    await SecureStore.setItemAsync(SID_STORAGE_KEY, sid);
   } else {
-    await AsyncStorage.removeItem(SID_STORAGE_KEY);
+    await SecureStore.deleteItemAsync(SID_STORAGE_KEY);
   }
 };
 
@@ -20,7 +20,7 @@ export const getSid = async (): Promise<string | null> => {
   if (currentSid) {
     return currentSid;
   }
-  const storedSid = await AsyncStorage.getItem(SID_STORAGE_KEY);
+  const storedSid = await SecureStore.getItemAsync(SID_STORAGE_KEY);
   currentSid = storedSid;
   return storedSid;
 };
@@ -62,7 +62,7 @@ export const setupAxiosInterceptors = (onSessionExpired: () => void) => {
 
 export const apiRequest = async (endpoint: string, options?: AxiosRequestConfig) => {
   const response = await axiosInstance.request({
-    url: `/api/resource/${endpoint}`,
+    url: `/api/resource/${endpoint.replace('resource/', '')}`, // Remove duplicate 'resource/' if present
     ...options,
   });
   return response.data;

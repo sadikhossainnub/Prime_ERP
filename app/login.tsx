@@ -1,10 +1,11 @@
 import StyledButton from '@/components/ui/StyledButton';
 import StyledInput from '@/components/ui/StyledInput';
 import { BASE_URL } from '@/constants/config';
+import { getSid, setSid } from '@/services/api';
 import axios from 'axios';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Link, Redirect } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from 'expo-secure-store'; // Import SecureStore
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -20,6 +21,8 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useAuth } from './AuthContext';
 
+const BIOMETRIC_PREFERENCE_KEY = 'prime_erp_biometric_preference'; // Define the key
+
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,12 +31,14 @@ export default function LoginScreen() {
 
   useEffect(() => {
     const checkBiometricStatus = async () => {
-      const apiKey = await SecureStore.getItemAsync('api_key');
-      setBiometricAvailable(!!apiKey);
+      const biometricPreference = await SecureStore.getItemAsync(BIOMETRIC_PREFERENCE_KEY);
+      setBiometricAvailable(biometricPreference === 'true');
     };
     checkBiometricStatus();
-    biometricLogin();
-  }, []);
+    if (biometricAvailable) {
+      biometricLogin();
+    }
+  }, [biometricAvailable]);
 
   const biometricLogin = async () => {
     const compatible = await LocalAuthentication.hasHardwareAsync();
@@ -46,20 +51,20 @@ export default function LoginScreen() {
     });
 
     if (result.success) {
-      const apiKey = await SecureStore.getItemAsync('api_key');
-      const apiSecret = await SecureStore.getItemAsync('api_secret');
+      const sid = await getSid();
 
-      if (apiKey && apiSecret) {
+      if (sid) {
         try {
           setIsLoading(true);
           const res = await axios.get(`${BASE_URL}/api/method/frappe.auth.get_logged_user`, {
             headers: {
-              Authorization: `token ${apiKey}:${apiSecret}`,
+              Cookie: `sid=${sid}`,
             },
           });
           setUser(res.data.message);
         } catch (error) {
           Alert.alert('Biometric Login Failed', 'Please log in with your username and password.');
+          await setSid(null); // Clear invalid SID
         } finally {
           setIsLoading(false);
         }
@@ -73,23 +78,11 @@ export default function LoginScreen() {
       return;
     }
     try {
-      const loggedInUser = await login(email, password);
-      if (loggedInUser) {
-        Alert.alert(
-          'Enable Biometric Login',
-          'Would you like to enable biometric login for future use?',
-          [
-            { text: 'No', style: 'cancel' },
-            {
-              text: 'Yes',
-              onPress: () => {
-                setBiometricAvailable(true);
-                Alert.alert('Biometric login enabled!');
-              },
-            },
-          ]
-        );
-      }
+      await login(email, password);
+      // The biometricAvailable state is updated by the useEffect hook.
+      // If it's not available, the prompt should not appear.
+      // If it is available, the user has already enabled it.
+      // So, no need to ask again.
     } catch (error: any) {
       Alert.alert(
         'Login Failed',

@@ -1,11 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import api, { getSid, setSid, setupAxiosInterceptors } from '../services/api';
 import { getCurrentUserInfo, UserProfile } from '../services/profile';
 
 const AUTH_STORAGE_KEY = 'prime_erp_auth_data';
 
-import * as SecureStore from 'expo-secure-store';
 
 interface AuthContextProps {
   user: UserProfile | null;
@@ -30,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const logoutRef = useRef<() => Promise<void> | undefined>(undefined);
 
+  const router = useRouter();
   const logout = React.useCallback(async () => {
     setUser(null);
     setIsLoading(false);
@@ -38,11 +39,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await api.logout();
         await AsyncStorage.removeItem('LOCATION_TRACKING_CREDENTIALS');
         console.log('Background cleanup successful.');
+        router.replace('/login'); // Navigate to login screen after logout
       } catch (error) {
         console.error('Background logout cleanup failed:', error);
       }
     })();
-  }, []);
+  }, [router]);
 
   logoutRef.current = logout;
 
@@ -77,13 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Login successful for user:', userInfo.email);
 
       // After successful login, you would ideally get the API key and secret.
-      // For this example, we'll assume you get them from the login response or another API call.
-      // We'll use placeholders here.
-      const apiKey = 'dummy_api_key'; // Replace with actual API key retrieval
-      const apiSecret = 'dummy_api_secret'; // Replace with actual API secret retrieval
-
-      await SecureStore.setItemAsync('api_key', apiKey);
-      await SecureStore.setItemAsync('api_secret', apiSecret);
+      // The SID is already handled by `setSid` in `services/api.ts`
+      // No need to store separate API keys/secrets for biometric login here.
+      // The `getSid` and `setSid` functions now use SecureStore directly.
 
 
       try {

@@ -10,7 +10,6 @@ export interface ItemRowData {
   uom?: string;
   rate?: number;
   amount?: number;
-  warehouse?: string;
   rate_fetched?: boolean;
 }
 
@@ -20,7 +19,6 @@ interface ItemRowProps {
   onItemChange: (index: number, field: keyof ItemRowData, value: any) => void;
   onRemove: (index: number) => void;
   showRemoveButton?: boolean;
-  showWarehouseField?: boolean;
 }
 
 const ItemRow: React.FC<ItemRowProps> = ({
@@ -28,8 +26,7 @@ const ItemRow: React.FC<ItemRowProps> = ({
   item,
   onItemChange,
   onRemove,
-  showRemoveButton = true,
-  showWarehouseField = true
+  showRemoveButton = true
 }) => {
   const handleFieldChange = (field: keyof ItemRowData, value: any) => {
     onItemChange(index, field, value);
@@ -146,20 +143,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
         </View>
       </View>
 
-      {showWarehouseField && (
-        <View style={styles.row}>
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Warehouse *</Text>
-            <LinkField
-              doctype="Warehouse"
-              fieldname="warehouse"
-              value={item.warehouse || ''}
-              onChangeValue={(value: string) => handleFieldChange('warehouse', value)}
-              placeholder="Select Warehouse"
-            />
-          </View>
-        </View>
-      )}
     </View>
   );
 };

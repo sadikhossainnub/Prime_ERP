@@ -1,6 +1,8 @@
 import { ThemedText } from '@/components/ThemedText';
+import { BASE_URL } from '@/constants/config';
+import { setSid } from '@/services/api';
 import { getUserProfile, UserProfile } from '@/services/profile';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from 'expo-secure-store'; // Import SecureStore
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -25,24 +27,33 @@ export default function ProfileScreen() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
 
   useEffect(() => {
+    const BIOMETRIC_PREFERENCE_KEY = 'prime_erp_biometric_preference';
+
     const checkBiometricStatus = async () => {
-      const apiKey = await SecureStore.getItemAsync('api_key');
-      setBiometricEnabled(!!apiKey);
+      const biometricPreference = await SecureStore.getItemAsync(BIOMETRIC_PREFERENCE_KEY);
+      setBiometricEnabled(biometricPreference === 'true');
     };
     checkBiometricStatus();
   }, []);
 
+  const BIOMETRIC_PREFERENCE_KEY = 'prime_erp_biometric_preference'; // Define here as well for handleBiometricToggle
+
   const handleBiometricToggle = async (value: boolean) => {
     setBiometricEnabled(value);
     if (value) {
-      // For this example, we'll save dummy credentials.
-      // In a real app, you'd get these after a successful login.
-      await SecureStore.setItemAsync('api_key', 'dummy_api_key');
-      await SecureStore.setItemAsync('api_secret', 'dummy_api_secret');
+      // User is enabling biometrics
+      if (!user) {
+        Alert.alert('Login Required', 'Please log in with your credentials first to enable biometric login.');
+        setBiometricEnabled(false); // Revert switch state
+        return;
+      }
+      // If user is logged in, SID is already in SecureStore via services/api.ts
+      await SecureStore.setItemAsync(BIOMETRIC_PREFERENCE_KEY, 'true');
       Alert.alert('Biometric login enabled.');
     } else {
-      await SecureStore.deleteItemAsync('api_key');
-      await SecureStore.deleteItemAsync('api_secret');
+      // User is disabling biometrics
+      await SecureStore.setItemAsync(BIOMETRIC_PREFERENCE_KEY, 'false'); // Store preference
+      await setSid(null); // Clear SID from SecureStore to prevent automatic login
       Alert.alert('Biometric login disabled.');
     }
   };
@@ -156,7 +167,7 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
           {profile?.image ? (
-            <Image source={{ uri: profile.image }} style={styles.avatar} />
+            <Image source={{ uri: `${BASE_URL}${profile.image}` }} style={styles.avatar} />
           ) : (
             <View style={styles.avatarPlaceholder}>
               <Icon name="account" size={48} color="#6b7280" />

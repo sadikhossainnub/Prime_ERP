@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
 import { apiRequest } from '../../services/api';
-import { getDoctypes } from '../../services/doctype';
 import { debounce } from '../../utils/debounce';
 
 interface LinkFieldProps {
@@ -27,6 +26,7 @@ interface LinkFieldProps {
 interface LinkOption {
   name: string;
   title?: string;
+  label?: string; // Add label for display
   [key: string]: any;
 }
 
@@ -53,80 +53,86 @@ const LinkField: React.FC<LinkFieldProps> = ({
     try {
       let fetchedOptions: LinkOption[] = [];
 
-      if (doctype === 'DocType') {
-        // Use the specialized service for fetching doctypes
-        const doctypeNames = await getDoctypes();
-        fetchedOptions = doctypeNames.map(name => ({ name }));
-      } else {
-        // Use the generic resource fetcher for other doctypes
-        // Dynamically determine fields to fetch. Always include 'name' and 'title'.
-        // Add other common display fields if they are relevant for the doctype.
-        const dynamicFieldsToFetch = ['name'];
-        if (doctype === 'Customer') {
-          dynamicFieldsToFetch.push('customer_name');
-        } else if (doctype === 'Item') {
-          dynamicFieldsToFetch.push('item_name');
+      // Use the generic resource fetcher for all doctypes
+      // Dynamically determine fields to fetch. Always include 'name'.
+      const dynamicFieldsToFetch = ['name'];
+      let displayField = 'name'; // Field to use for display label
+
+      if (doctype === 'Customer') {
+        dynamicFieldsToFetch.push('customer_name');
+        displayField = 'customer_name';
+      } else if (doctype === 'Item') {
+        dynamicFieldsToFetch.push('item_name');
+        displayField = 'item_name';
+      } else if (doctype !== 'UOM') {
+        // For other doctypes (not Customer, Item, or UOM), try to get the title field
+        try {
+          const titleRes = await apiRequest(`method/frappe.desk.search.get_title_field`, {
+            params: { doctype },
+          });
+          if (titleRes.message) {
+            dynamicFieldsToFetch.push(titleRes.message);
+            displayField = titleRes.message;
+          }
+        } catch (titleError) {
+          console.warn(`Could not fetch title field for doctype ${doctype}:`, titleError);
+          // Fallback to 'name' if title field cannot be fetched
         }
-        // Add 'title' for doctypes other than 'UOM'
-        if (doctype !== 'UOM') {
-          dynamicFieldsToFetch.push('title');
-        }
+      }
 
-        // Ensure unique fields
-        const fieldsToFetch = Array.from(new Set(dynamicFieldsToFetch));
+      // Ensure unique fields
+      const fieldsToFetch = Array.from(new Set(dynamicFieldsToFetch));
 
-        const params: any = {
-          fields: JSON.stringify(fieldsToFetch),
-          order_by: 'modified desc',
-          limit_page_length: 999999, // Remove API limit
-        };
+      const params: any = {
+        fields: JSON.stringify(fieldsToFetch),
+        order_by: 'modified desc',
+        limit_page_length: 999999, // Remove API limit
+      };
 
-        let allFilters: (string[] | (string[] | 'or')[])[] = propFilters ? [...propFilters] : [];
+      let allFilters: (string[] | (string[] | 'or')[])[] = propFilters ? [...propFilters] : [];
 
-        if (query.trim()) {
-          const searchQuery = `%${query.trim()}%`;
-          const searchConditions: string[][] = [
-            ['name', 'like', searchQuery]
-          ];
-          if (doctype !== 'UOM' && dynamicFieldsToFetch.includes('title')) { // Only add title search if not UOM
-            searchConditions.push(['title', 'like', searchQuery]);
-          }
-          if (dynamicFieldsToFetch.includes('customer_name')) {
-            searchConditions.push(['customer_name', 'like', searchQuery]);
-          }
-          if (dynamicFieldsToFetch.includes('item_name')) {
-            searchConditions.push(['item_name', 'like', searchQuery]);
-          }
-          
-          if (searchConditions.length > 0) {
-            if (searchConditions.length === 1) {
-              // If only one search condition, add it directly to allFilters
-              allFilters.push(searchConditions[0]);
-            } else {
-              // If multiple search conditions, combine them with "or"
-              const combinedOrConditions: (string[] | 'or')[] = [];
-              for (let i = 0; i < searchConditions.length; i++) {
-                combinedOrConditions.push(searchConditions[i]);
-                if (i < searchConditions.length - 1) {
-                  combinedOrConditions.push('or');
-                }
-              }
-              allFilters.push(combinedOrConditions); // This adds the OR group as one element
-            }
-          }
+      if (query.trim()) {
+        const searchQuery = `%${query.trim()}%`;
+        const searchConditions: string[][] = [
+          ['name', 'like', searchQuery]
+        ];
+
+        // Only add search conditions for existing display fields
+        if (displayField !== 'name' && fieldsToFetch.includes(displayField)) {
+          searchConditions.push([displayField, 'like', searchQuery]);
         }
         
-        if (allFilters.length > 0) {
-          params.filters = JSON.stringify(allFilters);
+        if (searchConditions.length > 0) {
+          if (searchConditions.length === 1) {
+            allFilters.push(searchConditions[0]);
+          } else {
+            const combinedOrConditions: (string[] | 'or')[] = [];
+            for (let i = 0; i < searchConditions.length; i++) {
+              combinedOrConditions.push(searchConditions[i]);
+              if (i < searchConditions.length - 1) {
+                combinedOrConditions.push('or');
+              }
+            }
+            allFilters.push(combinedOrConditions);
+          }
         }
-
-        const data = await apiRequest(doctype, {
-          method: 'GET',
-          params: params,
-        });
-        console.log('LinkField fetchOptions response data:', data);
-        fetchedOptions = data.data || [];
       }
+      
+      if (allFilters.length > 0) {
+        params.filters = JSON.stringify(allFilters);
+      }
+
+      const data = await apiRequest(`resource/${encodeURIComponent(doctype)}`, {
+        method: 'GET',
+        params: params,
+      });
+      console.log('LinkField fetchOptions response data:', data);
+      fetchedOptions = data.data || [];
+      // Assign the correct label for display
+      fetchedOptions = fetchedOptions.map(option => ({
+        ...option,
+        label: option[displayField] || option.name
+      }));
 
       setOptions(fetchedOptions);
 
@@ -173,11 +179,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
     if (!value) return placeholder;
     
     if (selectedOption) {
-      return selectedOption.title || 
-             selectedOption.customer_name || 
-             selectedOption.supplier_name || 
-             selectedOption.item_name || 
-             selectedOption.name;
+      return selectedOption.label || selectedOption.name;
     }
     
     return value;
@@ -197,7 +199,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
             !editable ? styles.inputDisabled : {},
           ]}>
             <Text style={styles.inputText}>
-              {(selectedItem && (selectedItem.title || selectedItem.customer_name || selectedItem.supplier_name || selectedItem.item_name || selectedItem.name)) || buttonText}
+              {(selectedItem && (selectedItem.label || selectedItem.name)) || buttonText}
             </Text>
             <Ionicons name={isOpened ? "chevron-up" : "chevron-down"} style={styles.dropdownIcon} />
           </View>
@@ -205,7 +207,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
         renderItem={(item, index, isSelected) => (
           <View style={[styles.rowStyle, isSelected && styles.rowSelected]}>
             <Text style={[styles.rowTextStyle, isSelected && styles.rowTextSelected]}>
-              {item.title ? `${item.name} - ${item.title}` : item.name}
+              {item.label ? `${item.name} - ${item.label}` : item.name}
             </Text>
           </View>
         )}

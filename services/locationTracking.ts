@@ -87,11 +87,6 @@ export const startLocationTracking = async (): Promise<boolean> => {
         accuracy: Location.Accuracy.Highest,
         timeInterval: 60 * 1000, // 1 minute in milliseconds
         distanceInterval: 10, // Update every 10 meters
-        foregroundService: {
-          notificationTitle: 'Location Tracking',
-          notificationBody: 'Tracking your location in the background',
-          notificationColor: '#4f46e5',
-        },
       });
       console.log('Background location tracking started.');
       return true;

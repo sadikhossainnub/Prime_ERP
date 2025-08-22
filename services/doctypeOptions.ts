@@ -1,37 +1,30 @@
-import { API_KEY, API_SECRET, BASE_URL } from '@/constants/config';
-import axios from "axios";
-import { getAuthHeaders } from "./authHeaders"; // Assuming this is available and provides token based headers
+import { apiRequest } from './api';
 
-async function fetchOptions(doctype: string) {
+async function fetchOptions(doctype: string, search = '') {
   try {
-    const headers = await getAuthHeaders();
+    let fieldsToFetch = ["name"];
+    let titleField = "name";
 
-    // 1. Get the title field for the doctype
-    const titleRes = await axios.get(
-      `${BASE_URL}/api/method/frappe.desk.search.get_title_field`,
-      {
+    if (doctype === "Customer") {
+      // For Customer, do not fetch 'title' field, as it causes a Frappe DataError
+      // The name field will be used for both value and label
+    } else {
+      // 1. Get the title field for the doctype
+      const titleRes = await apiRequest(`method/frappe.desk.search.get_title_field`, {
         params: { doctype },
-        headers: {
-          Authorization: `token ${API_KEY}:${API_SECRET}`
-        }
-      }
-    );
+      });
+      titleField = titleRes.message || "name";
+      fieldsToFetch.push(titleField);
+    }
 
-    const titleField = titleRes.data.message || "name";
-
-    // 2. Fetch options with name + title field
-    const res = await axios.get(
-      `${BASE_URL}/api/resource/${encodeURIComponent(doctype)}`,
-      {
-        params: {
-          fields: JSON.stringify(["name", titleField]),
-          order_by: "modified desc"
-        },
-        headers: {
-          Authorization: `token ${API_KEY}:${API_SECRET}`
-        }
-      }
-    );
+    // 2. Fetch options with name (+ title field if not Customer)
+    const res = await apiRequest(`resource/${encodeURIComponent(doctype)}`, {
+      params: {
+        fields: JSON.stringify(fieldsToFetch),
+        order_by: "modified desc",
+        filters: search ? `[["name", "like", "%${search}%"]]` : undefined,
+      },
+    });
 
     return res.data.data.map((row: any) => ({
       value: row.name,

@@ -58,13 +58,15 @@ const CustomerListScreen = () => {
         data={filteredCustomers}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Name: {item.name}</Text>
-            <Text style={styles.cardText}>Customer: {item.customer_name}</Text>
-            <Text style={styles.cardText}>Total: {item.grand_total}</Text>
-            <Text style={[styles.cardText, styles.statusStyle, { color: item.status === 'Draft' ? 'gray' : item.status === 'Submitted' ? 'blue' : 'green' }]}>
-              Status: {item.status}</Text>
-          </View>
+          <TouchableOpacity onPress={() => router.push({ pathname: '/(tabs)/customerform', params: { name: item.name, mode: 'view' } })}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Name: {item.name}</Text>
+              <Text style={styles.cardText}>Customer: {item.customer_name}</Text>
+              <Text style={styles.cardText}>Total: {item.grand_total}</Text>
+              <Text style={[styles.cardText, styles.statusStyle, { color: item.status === 'Draft' ? 'gray' : item.status === 'Submitted' ? 'blue' : 'green' }]}>
+                Status: {item.status}</Text>
+            </View>
+          </TouchableOpacity>
         )}
       />
     </View>

@@ -68,20 +68,7 @@ const QuotationListScreen = () => {
         data={filteredQuotations}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={async () => {
-              try {
-                const response = await apiRequest(`Quotation/${item.name}`);
-                router.push({
-                  pathname: '/(tabs)/quotationform',
-                  params: { initialData: JSON.stringify(response.data), mode: 'edit' },
-                });
-              } catch (error) {
-                console.error('Failed to fetch quotation details:', error);
-                Alert.alert('Error', 'Failed to fetch quotation details.');
-              }
-            }}
-          >
+          <TouchableOpacity onPress={() => router.push({ pathname: '/(tabs)/quotationform', params: { name: item.name, mode: 'view' } })}>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Name: {item.name}</Text>
               <Text style={styles.cardText}>Customer: {item.customer_name}</Text>

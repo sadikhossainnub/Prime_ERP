@@ -58,11 +58,13 @@ const ItemListScreen = () => {
         data={filteredItems}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Name: {item.name}</Text>
-            <Text style={styles.cardText}>Item Code: {item.item_code}</Text>
-            <Text style={styles.cardText}>Description: {item.description}</Text>
-          </View>
+          <TouchableOpacity onPress={() => router.push({ pathname: '/(tabs)/itemform', params: { name: item.name, mode: 'view' } })}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Name: {item.name}</Text>
+              <Text style={styles.cardText}>Item Code: {item.item_code}</Text>
+              <Text style={styles.cardText}>Description: {item.description}</Text>
+            </View>
+          </TouchableOpacity>
         )}
       />
     </View>

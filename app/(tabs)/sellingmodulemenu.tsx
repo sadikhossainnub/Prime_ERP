@@ -18,7 +18,7 @@ interface Module {
 
 const modules: Module[] = [
   { name: "Quotations", label: "Quotations", icon: "paperplane.fill" },
-  { name: "Orders", label: "Orders", icon: "paperplane.fill" },
+  { name: "Orders", label: "Orders", icon: "cart" },
   { name: "Customers", label: "Customers", icon: "users" },
   { name: "Items", label: "Items", icon: "archive" },
 ];

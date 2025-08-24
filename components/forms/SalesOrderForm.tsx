@@ -12,7 +12,7 @@ interface SalesOrderFormProps {
   onSuccess?: (data?: any) => void;
   onCancel?: () => void;
   initialData?: Record<string, any>;
-  mode?: 'create' | 'edit';
+  mode?: 'create' | 'edit' | 'view';
 }
 
 interface FormSection {
@@ -56,6 +56,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [fieldsLoading, setFieldsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const isViewMode = mode === 'view';
 
   useEffect(() => {
     fetchFields();
@@ -358,7 +359,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
       }
     >
       <Text style={styles.title}>
-        {mode === 'create' ? 'Create Sales Order' : 'Edit Sales Order'}
+        {mode === 'create' ? 'Create Sales Order' : mode === 'edit' ? 'Edit Sales Order' : 'View Sales Order'}
       </Text>
 
       {generalInfoSection && (
@@ -372,6 +373,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
               onChangeValue={updateField}
               error={errors[field.fieldname]}
               formData={formData}
+              isViewMode={isViewMode}
             />
           ))}
         </View>
@@ -381,7 +383,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
         <ItemTable
           items={items}
           onItemsChange={handleItemsChange}
-          editable={true}
+          editable={!isViewMode}
           showTotals={true}
         />
         {errors['items'] && <Text style={styles.errorText}>{errors['items']}</Text>}
@@ -397,6 +399,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
               onChangeValue={updateField}
               error={errors[field.fieldname]}
               formData={formData}
+              isViewMode={isViewMode}
             />
           ))}
         </View>
@@ -413,27 +416,30 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
               onChangeValue={updateField}
               error={errors[field.fieldname]}
               formData={formData}
+              isViewMode={isViewMode}
             />
           ))}
         </View>
       ))}
 
-      <View style={styles.buttonContainer}>
-        <StyledButton
-          title={loading ? 'Processing...' : (mode === 'create' ? 'Create Sales Order' : 'Update Sales Order')}
-          onPress={handleSubmit}
-          style={[styles.submitButton, loading && styles.disabledButton]}
-        />
-        
-        {onCancel && (
+      {!isViewMode && (
+        <View style={styles.buttonContainer}>
           <StyledButton
-            title="Cancel"
-            onPress={onCancel}
-            style={styles.cancelButton}
-            textStyle={styles.cancelButtonText}
+            title={loading ? 'Processing...' : (mode === 'create' ? 'Create Sales Order' : 'Update Sales Order')}
+            onPress={handleSubmit}
+            style={[styles.submitButton, loading && styles.disabledButton]}
           />
-        )}
-      </View>
+          
+          {onCancel && (
+            <StyledButton
+              title="Cancel"
+              onPress={onCancel}
+              style={styles.cancelButton}
+              textStyle={styles.cancelButtonText}
+            />
+          )}
+        </View>
+      )}
     </ScrollView>
   );
 };

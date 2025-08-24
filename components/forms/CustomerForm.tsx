@@ -5,7 +5,7 @@ interface CustomerFormProps {
   onSuccess?: (data?: any) => void;
   onCancel?: () => void;
   initialData?: Record<string, any>;
-  mode?: 'create' | 'edit';
+  mode?: 'create' | 'edit' | 'view';
 }
 
 const CustomerForm: React.FC<CustomerFormProps> = ({
@@ -21,7 +21,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       mode={mode}
       onSuccess={onSuccess}
       onCancel={onCancel}
-      title={mode === 'create' ? 'Create Customer' : 'Edit Customer'}
+      title={mode === 'create' ? 'Create Customer' : mode === 'edit' ? 'Edit Customer' : 'View Customer'}
     />
   );
 };

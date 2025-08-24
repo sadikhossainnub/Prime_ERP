@@ -13,7 +13,7 @@ interface QuotationFormProps {
   onSuccess?: (data?: any) => void;
   onCancel?: () => void;
   initialData?: Record<string, any>;
-  mode?: 'create' | 'edit';
+  mode?: 'create' | 'edit' | 'view';
 }
 
 interface FormSection {
@@ -54,6 +54,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [fieldsLoading, setFieldsLoading] = useState(true);
+  const isViewMode = mode === 'view';
 
   useEffect(() => {
     fetchFields();
@@ -338,7 +339,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Text style={styles.title}>
-        {mode === 'create' ? 'Create Quotation' : 'Edit Quotation'}
+        {mode === 'create' ? 'Create Quotation' : mode === 'edit' ? 'Edit Quotation' : 'View Quotation'}
       </Text>
 
       {/* General Information Section */}
@@ -353,6 +354,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               onChangeValue={updateField}
               error={errors[field.fieldname]}
               formData={formData}
+              isViewMode={isViewMode}
             />
           ))}
         </View>
@@ -363,7 +365,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         <ItemTable
           items={items}
           onItemsChange={handleItemsChange}
-          editable={true}
+          editable={!isViewMode}
           showTotals={true}
           showWarehouseField={false}
         />
@@ -380,6 +382,7 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               onChangeValue={updateField}
               error={errors[field.fieldname]}
               formData={formData}
+              isViewMode={isViewMode}
             />
           ))}
         </View>
@@ -397,35 +400,38 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
               onChangeValue={updateField}
               error={errors[field.fieldname]}
               formData={formData}
+              isViewMode={isViewMode}
             />
           ))}
         </View>
       ))}
 
       {/* Submit Buttons */}
-      <View style={styles.buttonContainer}>
-        <StyledButton
-          title={loading ? 'Processing...' : (mode === 'create' ? 'Create Quotation' : 'Update Quotation')}
-          onPress={handleSubmit}
-          style={[styles.submitButton, loading && styles.disabledButton]}
-        />
-        
-        {onCancel && (
+      {!isViewMode && (
+        <View style={styles.buttonContainer}>
           <StyledButton
-            title="Cancel"
-            onPress={onCancel}
-            style={styles.cancelButton}
-            textStyle={styles.cancelButtonText}
+            title={loading ? 'Processing...' : (mode === 'create' ? 'Create Quotation' : 'Update Quotation')}
+            onPress={handleSubmit}
+            style={[styles.submitButton, loading && styles.disabledButton]}
           />
-        )}
-        {mode === 'edit' && (
-          <StyledButton
-            title="Create Sales Order"
-            onPress={handleCreateSalesOrder}
-            style={styles.salesOrderButton}
-          />
-        )}
-      </View>
+          
+          {onCancel && (
+            <StyledButton
+              title="Cancel"
+              onPress={onCancel}
+              style={styles.cancelButton}
+              textStyle={styles.cancelButtonText}
+            />
+          )}
+          {mode === 'edit' && (
+            <StyledButton
+              title="Create Sales Order"
+              onPress={handleCreateSalesOrder}
+              style={styles.salesOrderButton}
+            />
+          )}
+        </View>
+      )}
     </ScrollView>
   );
 };

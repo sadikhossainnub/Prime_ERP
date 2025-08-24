@@ -10,7 +10,7 @@ import DynamicField from './DynamicField';
 interface DynamicFormProps {
   doctype: string;
   initialData?: Record<string, any>;
-  mode?: 'create' | 'edit';
+  mode?: 'create' | 'edit' | 'view';
   onSuccess?: (data: any) => void;
   onCancel?: () => void;
   title?: string;
@@ -35,6 +35,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [fieldsLoading, setFieldsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const isViewMode = mode === 'view';
 
   useEffect(() => {
     fetchFields();
@@ -321,27 +322,30 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
               onChangeValue={updateField}
               error={errors[field.fieldname]}
               formData={formData}
+              isViewMode={isViewMode}
             />
           ))}
         </View>
       ))}
 
-      <View style={styles.buttonContainer}>
-        <StyledButton
-          title={loading ? 'Processing...' : (mode === 'create' ? `Create ${doctype}` : `Update ${doctype}`)}
-          onPress={handleSubmit}
-          style={[styles.submitButton, loading && styles.disabledButton]}
-        />
-        
-        {onCancel && (
+      {!isViewMode && (
+        <View style={styles.buttonContainer}>
           <StyledButton
-            title="Cancel"
-            onPress={onCancel}
-            style={styles.cancelButton}
-            textStyle={styles.cancelButtonText}
+            title={loading ? 'Processing...' : (mode === 'create' ? `Create ${doctype}` : `Update ${doctype}`)}
+            onPress={handleSubmit}
+            style={[styles.submitButton, loading && styles.disabledButton]}
           />
-        )}
-      </View>
+          
+          {onCancel && (
+            <StyledButton
+              title="Cancel"
+              onPress={onCancel}
+              style={styles.cancelButton}
+              textStyle={styles.cancelButtonText}
+            />
+          )}
+        </View>
+      )}
     </ScrollView>
   );
 };

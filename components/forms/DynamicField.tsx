@@ -15,6 +15,7 @@ interface DynamicFieldProps {
   onChangeValue: (fieldname: string, value: any) => void;
   error?: string;
   formData?: Record<string, any>;
+  isViewMode?: boolean;
 }
 
 const evaluateDependsOn = (condition: string | undefined, doc: any): boolean => {
@@ -41,10 +42,11 @@ const DynamicField: React.FC<DynamicFieldProps> = ({
   value,
   onChangeValue,
   error,
-  formData = {}
+  formData = {},
+  isViewMode = false
 }) => {
   const isRequired = field.mandatory === 1;
-  const isReadOnly = field.read_only === 1;
+  const isReadOnly = field.read_only === 1 || isViewMode;
   const placeholder = `${field.label}${isRequired ? ' *' : ''}`;
 
   const handleChange = (newValue: any) => {

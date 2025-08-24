@@ -5,7 +5,7 @@ interface ItemFormProps {
   onSuccess?: (data?: any) => void;
   onCancel?: () => void;
   initialData?: Record<string, any>;
-  mode?: 'create' | 'edit';
+  mode?: 'create' | 'edit' | 'view';
 }
 
 const ItemForm: React.FC<ItemFormProps> = ({
@@ -21,7 +21,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
       mode={mode}
       onSuccess={onSuccess}
       onCancel={onCancel}
-      title={mode === 'create' ? 'Create Item' : 'Edit Item'}
+      title={mode === 'create' ? 'Create Item' : mode === 'edit' ? 'Edit Item' : 'View Item'}
     />
   );
 };

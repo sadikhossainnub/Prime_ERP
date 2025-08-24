@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -22,6 +23,9 @@ const modules: { name: string; label: string; icon: React.ComponentProps<typeof 
 export default function ModuleScreen() {
   const router = useRouter();
   const [selectedModule, setSelectedModule] = useState<string | null>(null);
+  const cardBackgroundColor = useThemeColor({}, "moduleCardBackground");
+  const cardTextColor = useThemeColor({}, "moduleCardText");
+  const iconColor = useThemeColor({}, "icon");
 
   const handleCardPress = (moduleName: string) => {
     console.log("handleCardPress called with moduleName:", moduleName);
@@ -52,11 +56,13 @@ export default function ModuleScreen() {
         numColumns={2}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, { backgroundColor: cardBackgroundColor }]}
             onPress={() => handleCardPress(item.name)}
           >
-            <IconSymbol name={item.icon} size={40} color="#333" />
-            <ThemedText style={styles.cardText}>{item.label}</ThemedText>
+            <IconSymbol name={item.icon} size={40} color={iconColor} />
+            <ThemedText style={[styles.cardText, { color: cardTextColor }]}>
+              {item.label}
+            </ThemedText>
           </TouchableOpacity>
         )}
       />
@@ -80,7 +86,6 @@ const styles = StyleSheet.create({
     margin: 8,
     padding: 20,
     borderRadius: 12,
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     elevation: 4,

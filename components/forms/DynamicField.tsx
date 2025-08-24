@@ -1,3 +1,4 @@
+import { useThemeColor } from '@/hooks/useThemeColor';
 import React from 'react';
 import { Button, StyleSheet, Switch, Text, View } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -45,6 +46,10 @@ const DynamicField: React.FC<DynamicFieldProps> = ({
   formData = {},
   isViewMode = false
 }) => {
+  const theme = useThemeColor({}, 'background');
+  const isDarkMode = theme === '#1C1C1E';
+
+  const styles = getThemedStyles(isDarkMode);
   const isRequired = field.mandatory === 1;
   const isReadOnly = field.read_only === 1 || isViewMode;
   const placeholder = `${field.label}${isRequired ? ' *' : ''}`;
@@ -328,7 +333,7 @@ const DynamicField: React.FC<DynamicFieldProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getThemedStyles = (isDarkMode: boolean) => StyleSheet.create({
   fieldContainer: {
     marginBottom: 16,
   },
@@ -340,9 +345,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E8E8E8',
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: isDarkMode ? 'black' : '#fff',
     minHeight: 48,
     width: '100%',
+    shadowColor: isDarkMode ? 'white' : 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   inputError: {
     borderColor: '#FF3B30',
@@ -353,7 +363,7 @@ const styles = StyleSheet.create({
   inputText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: isDarkMode ? 'white' : '#333',
   },
   dropdownIcon: {
     fontSize: 12,
@@ -389,11 +399,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E8E8E8',
     borderRadius: 8,
-    backgroundColor: '#fff',
+    backgroundColor: isDarkMode ? 'black' : '#fff',
+    shadowColor: isDarkMode ? 'white' : 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   switchLabel: {
     fontSize: 16,
-    color: '#333',
+    color: isDarkMode ? 'white' : '#333',
     fontWeight: '500',
     flex: 1,
   },

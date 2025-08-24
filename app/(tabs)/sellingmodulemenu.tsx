@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol, IconSymbolName } from "@/components/ui/IconSymbol";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useRouter } from "expo-router";
 import React from 'react';
 import {
@@ -25,6 +26,9 @@ const modules: Module[] = [
 
 const SellingModuleMenu = () => {
   const router = useRouter();
+  const backgroundColor = useThemeColor({}, "sellingCardBackground");
+  const shadowColor = useThemeColor({}, "sellingCardShadow");
+  const iconColor = useThemeColor({}, "sellingCardIcon");
 
   console.log("SellingModuleMenu component rendered");
   return (
@@ -38,7 +42,10 @@ const SellingModuleMenu = () => {
         numColumns={2}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, { 
+              backgroundColor: backgroundColor,
+              shadowColor: shadowColor,
+            }]}
             onPress={() => {
               switch (item.name) {
                 case "Quotations":
@@ -56,7 +63,7 @@ const SellingModuleMenu = () => {
               }
             }}
           >
-            <IconSymbol name={item.icon} size={40} color="#333" />
+            <IconSymbol name={item.icon} size={40} color={iconColor} />
             <ThemedText style={styles.cardText}>{item.label}</ThemedText>
           </TouchableOpacity>
         )}
@@ -81,14 +88,13 @@ const styles = StyleSheet.create({
     margin: 8,
     padding: 20,
     borderRadius: 12,
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-   elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     minHeight: 150,
   },
   cardText: {

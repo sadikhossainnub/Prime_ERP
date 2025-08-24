@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { BarChart, PieChart } from "react-native-chart-kit";
 import PipelineChart from "../../components/PipelineChart";
+import { useThemeColor } from "../../hooks/useThemeColor";
 import { getDashboardData } from "../../services/dashboard";
 
 const screenWidth = Dimensions.get("window").width - 32;
@@ -9,6 +10,12 @@ const screenWidth = Dimensions.get("window").width - 32;
 export default function DashboardScreen() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
+
+  const backgroundColor = useThemeColor({}, "background");
+  const textColor = useThemeColor({}, "text");
+  const tintColor = useThemeColor({}, "tint");
+  const cardBackgroundColor = useThemeColor({}, "cardBackground");
+  const iconColor = useThemeColor({}, "icon");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,11 +31,19 @@ export default function DashboardScreen() {
     fetchData();
   }, []);
 
+  const styles = getStyles({
+    background: backgroundColor,
+    text: textColor,
+    tint: tintColor,
+    cardBackground: cardBackgroundColor,
+    icon: iconColor,
+  });
+
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#00BCD4" />
-        <Text style={{ color: '#E0E0E0' }}>Loading Dashboard...</Text>
+        <ActivityIndicator size="large" color={tintColor} />
+        <Text style={{ color: textColor }}>Loading Dashboard...</Text>
       </View>
     );
   }
@@ -36,7 +51,7 @@ export default function DashboardScreen() {
   if (!data) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: '#E0E0E0' }}>Error loading dashboard data.</Text>
+        <Text style={{ color: textColor }}>Error loading dashboard data.</Text>
       </View>
     );
   }
@@ -86,12 +101,12 @@ export default function DashboardScreen() {
         yAxisLabel="৳"
         yAxisSuffix=""
         chartConfig={{
-          backgroundColor: "#1E1E1E", // A slightly lighter dark background for the chart
-          backgroundGradientFrom: "#1E1E1E",
-          backgroundGradientTo: "#1E1E1E",
+          backgroundColor: cardBackgroundColor,
+          backgroundGradientFrom: cardBackgroundColor,
+          backgroundGradientTo: cardBackgroundColor,
           decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(0, 188, 212, ${opacity})`, // Using the new tint color
-          labelColor: (opacity = 1) => `rgba(224, 224, 224, ${opacity})`, // Using the new text color
+          color: (opacity = 1) => `rgba(74, 144, 226, ${opacity})`,
+          labelColor: (opacity = 1) => textColor,
         }}
         style={styles.chart}
       />
@@ -103,8 +118,8 @@ export default function DashboardScreen() {
         width={screenWidth}
         height={220}
         chartConfig={{
-          color: (opacity = 1) => `rgba(0, 188, 212, ${opacity})`, // Using the new tint color
-          labelColor: (opacity = 1) => `rgba(224, 224, 224, ${opacity})`, // Using the new text color
+          color: (opacity = 1) => `rgba(74, 144, 226, ${opacity})`,
+          labelColor: (opacity = 1) => textColor,
         }}
         accessor={"value"}
         backgroundColor={"transparent"}
@@ -116,52 +131,60 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: "#121212", // New dark background
-    marginTop: 30,
-  },
-  cardsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  card: {
-    backgroundColor: "#333333", // Slightly lighter dark for cards
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    width: "48%", // for 2 columns
-  },
-  label: {
-    fontSize: 16,
-    color: "#B0B0B0", // Icon color for labels
-    marginBottom: 8,
-  },
-  value: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#00BCD4", // Tint color for values
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginVertical: 12,
-    color: "#E0E0E0", // Text color for titles
-  },
-  chart: {
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
+const getStyles = (theme: {
+  background: string;
+  text: string;
+  tint: string;
+  cardBackground: string;
+  icon: string;
+}) =>
+  StyleSheet.create({
+    container: {
+      padding: 16,
+      backgroundColor: theme.background,
+      marginTop: 30,
+    },
+    cardsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+    card: {
+      backgroundColor: theme.cardBackground,
+      padding: 20,
+      borderRadius: 12,
+      marginBottom: 15,
+      elevation: 2,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      width: "48%", // for 2 columns
+    },
+    label: {
+      fontSize: 16,
+      color: theme.icon,
+      marginBottom: 8,
+    },
+    value: {
+      fontSize: 22,
+      fontWeight: "bold",
+      color: theme.tint,
+    },
+    chartTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      marginVertical: 12,
+      color: theme.text,
+    },
+    chart: {
+      borderRadius: 12,
+      marginBottom: 20,
+    },
+    center: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: theme.background,
+    },
+  });

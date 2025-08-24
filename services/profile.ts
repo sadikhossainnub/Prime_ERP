@@ -1,5 +1,5 @@
 import { BASE_URL } from '@/constants/config';
-import { apiMethodRequest, apiRequest } from './api'; // Import apiRequest and apiMethodRequest
+import api from './api';
 
 const API_URL = BASE_URL;
 
@@ -21,22 +21,18 @@ export interface UserProfile {
 
 export const getUserProfile = async (): Promise<UserProfile> => {
   try {
-    const loggedUser = await apiMethodRequest('frappe.auth.get_logged_user', {
-      method: 'GET',
-    });
-    const username = loggedUser.message; // Assuming this returns the username/email
+    const loggedUser = await api.get('/api/method/frappe.auth.get_logged_user');
+    const username = loggedUser.data.message; // Assuming this returns the username/email
 
     if (!username) {
       throw new Error('Logged in user email not found.');
     }
 
     // Now fetch the full User doctype for more details
-    const userProfileData = await apiRequest(`User/${username}`, {
-      method: 'GET',
-    });
+    const userProfileData = await api.get(`/api/resource/User/${username}`);
 
-    console.log('Full User Profile Data:', userProfileData.data);
-    return userProfileData.data; // Frappe API usually returns data in .data property for resource GET
+    console.log('Full User Profile Data:', userProfileData.data.data);
+    return userProfileData.data.data; // Frappe API usually returns data in .data property for resource GET
   } catch (error) {
     console.error('Error fetching user profile:', error);
     throw error;
@@ -45,43 +41,21 @@ export const getUserProfile = async (): Promise<UserProfile> => {
 
 export const updateUserProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
   try {
-    const data = await apiRequest('User', {
-      method: 'PUT', // Assuming PUT for update
-      data: profileData,
+    const data = await api.put('/api/resource/User', profileData, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    return data.data;
+    return data.data.data;
   } catch (error) {
     console.error('Error updating user profile:', error);
     throw error;
   }
 };
 
-export const getCurrentUserInfo = async (): Promise<UserProfile> => {
-  try {
-    const loggedUser = await apiMethodRequest('frappe.auth.get_logged_user', {
-      method: 'GET',
-    });
-    const username = loggedUser.message; // Assuming this returns the username/email
-
-    if (!username) {
-      throw new Error('Logged in user email not found.');
-    }
-
-    // Now fetch the full User doctype for more details
-    const userProfileData = await apiRequest(`User/${username}`, {
-      method: 'GET',
-    });
-    return userProfileData.data;
-  } catch (error) {
-    console.error('Error fetching current user info:', error);
-    // Fallback if API call fails or email is not found
-    return {
-      name: 'Unknown User',
-      email: '', // Returning empty string to trigger the check in locationTracking.ts
-      full_name: 'Unknown User (API fetch failed)',
-    };
-  }
-};
+export async function getCurrentUserInfo() {
+  const res = await api.get("/api/method/frappe.auth.get_logged_user");
+  const user = res.data.message; // returns the user ID/email
+  const profileRes = await api.get(`/api/resource/User/${user}`);
+  return profileRes.data.data; // full user profile doc
+}

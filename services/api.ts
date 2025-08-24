@@ -156,8 +156,16 @@ const api = {
     });
   },
   get_user_profile: async () => {
-    const response = await apiMethodRequest('your_app.api.get_user_profile');
+    const response = await apiMethodRequest('prime_erp.api.get_user_profile');
     return response.message;
+  },
+
+  get: async (url: string, options?: AxiosRequestConfig) => {
+    return axiosInstance.get(url, options);
+  },
+
+  put: async (url: string, data?: any, options?: AxiosRequestConfig) => {
+    return axiosInstance.put(url, data, options);
   },
 };
 

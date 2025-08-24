@@ -1,3 +1,4 @@
+import { useThemeColor } from '@/hooks/useThemeColor';
 import React from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { API_KEY, API_SECRET, BASE_URL } from '../../constants/config';
@@ -18,6 +19,8 @@ const ItemTable: React.FC<ItemTableProps> = ({
   showTotals = true,
   showWarehouseField = true
 }) => {
+  const themedStyles = useThemedStyles();
+
   const handleItemChange = async (index: number, field: keyof ItemRowData, value: any) => {
     const updatedItems = [...items];
     const currentItem = { ...updatedItems[index], [field]: value };
@@ -121,32 +124,32 @@ const ItemTable: React.FC<ItemTableProps> = ({
   const validationErrors = validateItems();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Items</Text>
+    <View style={themedStyles.container}>
+      <View style={themedStyles.header}>
+        <Text style={themedStyles.title}>Items</Text>
         {editable && (
-          <TouchableOpacity onPress={handleAddItem} style={styles.addButton}>
-            <Text style={styles.addButtonText}>+ Add Item</Text>
+          <TouchableOpacity onPress={handleAddItem} style={themedStyles.addButton}>
+            <Text style={themedStyles.addButtonText}>+ Add Item</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {validationErrors.length > 0 && (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Please fix the following errors:</Text>
+        <View style={themedStyles.errorContainer}>
+          <Text style={themedStyles.errorTitle}>Please fix the following errors:</Text>
           {validationErrors.map((error, index) => (
-            <Text key={index} style={styles.errorText}>• {error}</Text>
+            <Text key={index} style={themedStyles.errorText}>• {error}</Text>
           ))}
         </View>
       )}
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView style={themedStyles.scrollView} showsVerticalScrollIndicator={false}>
         {items.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No items added yet</Text>
+          <View style={themedStyles.emptyState}>
+            <Text style={themedStyles.emptyStateText}>No items added yet</Text>
             {editable && (
-              <TouchableOpacity onPress={handleAddItem} style={styles.emptyStateButton}>
-                <Text style={styles.emptyStateButtonText}>Add First Item</Text>
+              <TouchableOpacity onPress={handleAddItem} style={themedStyles.emptyStateButton}>
+                <Text style={themedStyles.emptyStateButtonText}>Add First Item</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -166,25 +169,25 @@ const ItemTable: React.FC<ItemTableProps> = ({
       </ScrollView>
 
       {showTotals && items.length > 0 && (
-        <View style={styles.totalsContainer}>
-          <Text style={styles.totalsTitle}>Summary</Text>
+        <View style={themedStyles.totalsContainer}>
+          <Text style={themedStyles.totalsTitle}>Summary</Text>
           
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total Quantity:</Text>
-            <Text style={styles.totalValue}>{totalQty}</Text>
+          <View style={themedStyles.totalRow}>
+            <Text style={themedStyles.totalLabel}>Total Quantity:</Text>
+            <Text style={themedStyles.totalValue}>{totalQty}</Text>
           </View>
           
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total Amount:</Text>
-            <Text style={styles.totalAmount}>৳{totalAmount.toFixed(2)}</Text>
+          <View style={themedStyles.totalRow}>
+            <Text style={themedStyles.totalLabel}>Total Amount:</Text>
+            <Text style={themedStyles.totalAmount}>৳{totalAmount.toFixed(2)}</Text>
           </View>
           
-          <View style={styles.separator} />
+          <View style={themedStyles.separator} />
           
           {/* Additional totals can be added here like tax, grand total, etc. */}
-          <View style={styles.totalRow}>
-            <Text style={[styles.totalLabel, styles.grandTotalLabel]}>Grand Total:</Text>
-            <Text style={[styles.totalAmount, styles.grandTotalAmount]}>
+          <View style={themedStyles.totalRow}>
+            <Text style={[themedStyles.totalLabel, themedStyles.grandTotalLabel]}>Grand Total:</Text>
+            <Text style={[themedStyles.totalAmount, themedStyles.grandTotalAmount]}>
               ৳{totalAmount.toFixed(2)}
             </Text>
           </View>
@@ -192,156 +195,167 @@ const ItemTable: React.FC<ItemTableProps> = ({
       )}
 
       {editable && items.length > 0 && (
-        <TouchableOpacity onPress={handleAddItem} style={styles.addMoreButton}>
-          <Text style={styles.addMoreButtonText}>+ Add Another Item</Text>
+        <TouchableOpacity onPress={handleAddItem} style={themedStyles.addMoreButton}>
+          <Text style={themedStyles.addMoreButtonText}>+ Add Another Item</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: '#007BFF',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  addButton: {
-    backgroundColor: '#007BFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  errorContainer: {
-    backgroundColor: '#fff5f5',
-    borderWidth: 1,
-    borderColor: '#fed7d7',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  errorTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#e53e3e',
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 12,
-    color: '#e53e3e',
-    marginBottom: 2,
-  },
-  scrollView: {
-    flex: 1,
-    marginBottom: 16,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-    borderWidth: 2,
-    borderColor: '#e0e0e0',
-    borderStyle: 'dashed',
-    borderRadius: 12,
-    backgroundColor: '#f8f9fa',
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 16,
-  },
-  emptyStateButton: {
-    backgroundColor: '#007BFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  emptyStateButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  totalsContainer: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-    padding: 16,
-    marginTop: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  totalsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  totalLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  totalValue: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
-  },
-  totalAmount: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#007BFF',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 8,
-  },
-  grandTotalLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  grandTotalAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#28a745',
-  },
-  addMoreButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#007BFF',
-    borderStyle: 'dashed',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  addMoreButtonText: {
-    color: '#007BFF',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-});
+const useThemedStyles = () => {
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const tintColor = useThemeColor({}, 'tint');
+  const borderColor = useThemeColor({ light: '#e0e0e0', dark: '#333' }, 'icon');
+  const errorBackgroundColor = useThemeColor({ light: '#fff5f5', dark: '#4d1f1f' }, 'background');
+  const errorBorderColor = useThemeColor({ light: '#fed7d7', dark: '#a52a2a' }, 'icon');
+  const errorTextColor = useThemeColor({ light: '#e53e3e', dark: '#ff6b6b' }, 'text');
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: backgroundColor,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+      paddingBottom: 12,
+      borderBottomWidth: 2,
+      borderBottomColor: tintColor,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: textColor,
+    },
+    addButton: {
+      backgroundColor: tintColor,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 6,
+    },
+    addButtonText: {
+      color: useThemeColor({ light: '#fff', dark: '#000' }, 'text'),
+      fontSize: 14,
+      fontWeight: '500',
+    },
+    errorContainer: {
+      backgroundColor: errorBackgroundColor,
+      borderWidth: 1,
+      borderColor: errorBorderColor,
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 16,
+    },
+    errorTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: errorTextColor,
+      marginBottom: 8,
+    },
+    errorText: {
+      fontSize: 12,
+      color: errorTextColor,
+      marginBottom: 2,
+    },
+    scrollView: {
+      flex: 1,
+      marginBottom: 16,
+    },
+    emptyState: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 40,
+      borderWidth: 2,
+      borderColor: borderColor,
+      borderStyle: 'dashed',
+      borderRadius: 12,
+      backgroundColor: useThemeColor({ light: '#f8f9fa', dark: '#2c2c2e' }, 'background'),
+    },
+    emptyStateText: {
+      fontSize: 16,
+      color: textColor,
+      marginBottom: 16,
+    },
+    emptyStateButton: {
+      backgroundColor: tintColor,
+      paddingHorizontal: 24,
+      paddingVertical: 12,
+      borderRadius: 8,
+    },
+    emptyStateButtonText: {
+      color: useThemeColor({ light: '#fff', dark: '#000' }, 'text'),
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    totalsContainer: {
+      backgroundColor: useThemeColor({ light: '#f8f9fa', dark: '#2c2c2e' }, 'background'),
+      borderRadius: 8,
+      padding: 16,
+      marginTop: 16,
+      borderWidth: 1,
+      borderColor: borderColor,
+    },
+    totalsTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: textColor,
+      marginBottom: 12,
+    },
+    totalRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    totalLabel: {
+      fontSize: 14,
+      color: textColor,
+    },
+    totalValue: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: textColor,
+    },
+    totalAmount: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: tintColor,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: borderColor,
+      marginVertical: 8,
+    },
+    grandTotalLabel: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: textColor,
+    },
+    grandTotalAmount: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: useThemeColor({ light: '#28a745', dark: '#2ecc71' }, 'tint'),
+    },
+    addMoreButton: {
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderColor: tintColor,
+      borderStyle: 'dashed',
+      paddingVertical: 12,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    addMoreButtonText: {
+      color: tintColor,
+      fontSize: 14,
+      fontWeight: '500',
+    },
+  });
+};
 
 export default ItemTable;

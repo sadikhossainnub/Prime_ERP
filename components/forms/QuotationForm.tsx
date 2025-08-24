@@ -1,4 +1,5 @@
 
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -47,6 +48,12 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   initialData = {},
   mode = 'create'
 }) => {
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const cardBackgroundColor = useThemeColor({}, 'cardBackground');
+  const tintColor = useThemeColor({}, 'tint');
+  const iconColor = useThemeColor({}, 'icon');
+
   const router = useRouter();
   const [fields, setFields] = useState<Doctype[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>(initialData);
@@ -121,12 +128,6 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         "mandatory": 1, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
         "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
         "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "in_standard_filter": 1, "print_hide": 1, "reqd": 1
-      },
-      {
-        "name": "territory", "label": "Territory", "fieldname": "territory", "fieldtype": "Link", "options": "Territory", "default": "",
-        "mandatory": 0, "read_only": 0, "hidden": 0, "depends_on": "", "description": "", "length": 0, "precision": "",
-        "unique": 0, "allow_on_submit": 0, "in_list_view": 0, "in_print_format": 0, "fetch_from": "", "collapsible": 0,
-        "allow_copy": 0, "read_only_on_submit": 0, "fetch_if_empty": 0, "print_hide": 1
       },
       {
         "name": "total_qty", "label": "Total Quantity", "fieldname": "total_qty", "fieldtype": "Float", "options": "", "default": "",
@@ -318,10 +319,18 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
     return sections;
   };
 
+  const styles = getStyles({
+    background: backgroundColor,
+    text: textColor,
+    cardBackground: cardBackgroundColor,
+    tint: tintColor,
+    icon: iconColor,
+  });
+
   if (fieldsLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>Loading form...</Text>
+        <Text style={{ color: textColor }}>Loading form...</Text>
       </View>
     );
   }
@@ -436,62 +445,72 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    marginTop: 30,
-  },
-  contentContainer: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-    color: '#333',
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#333',
-  },
-  errorText: {
-    color: '#ff4757',
-    fontSize: 14,
-    marginTop: 4,
-  },
-  buttonContainer: {
-    marginTop: 20,
-    gap: 12,
-  },
-  submitButton: {
-    backgroundColor: '#007BFF',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  cancelButton: {
-    backgroundColor: '#6c757d',
-  },
-  cancelButtonText: {
-    color: '#fff',
-  },
-  salesOrderButton: {
-    backgroundColor: '#28a745',
-  },
-});
+const getStyles = (theme: {
+  background: string;
+  text: string;
+  cardBackground: string;
+  tint: string;
+  icon: string;
+}) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+      marginTop: 30,
+    },
+    contentContainer: {
+      padding: 20,
+      paddingBottom: 40,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: theme.background,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 24,
+      textAlign: 'center',
+      color: theme.text,
+    },
+    section: {
+      marginBottom: 24,
+      backgroundColor: theme.cardBackground,
+      borderRadius: 8,
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      marginBottom: 12,
+      color: theme.text,
+    },
+    errorText: {
+      color: '#ff4757',
+      fontSize: 14,
+      marginTop: 4,
+    },
+    buttonContainer: {
+      marginTop: 20,
+      gap: 12,
+    },
+    submitButton: {
+      backgroundColor: theme.tint,
+    },
+    disabledButton: {
+      backgroundColor: theme.icon,
+    },
+    cancelButton: {
+      backgroundColor: theme.icon,
+    },
+    cancelButtonText: {
+      color: theme.text,
+    },
+    salesOrderButton: {
+      backgroundColor: '#28a745',
+    },
+  });
 
 export default QuotationForm;

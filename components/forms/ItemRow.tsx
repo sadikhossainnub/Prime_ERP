@@ -1,3 +1,4 @@
+import { useThemeColor } from '@/hooks/useThemeColor';
 import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinkField from './LinkField';
@@ -31,6 +32,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
   showRemoveButton = true,
   showWarehouseField = true
 }) => {
+  const themedStyles = useThemedStyles();
+
   const handleFieldChange = (field: keyof ItemRowData, value: any) => {
     onItemChange(index, field, value);
   };
@@ -50,19 +53,19 @@ const ItemRow: React.FC<ItemRowProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Item {index + 1}</Text>
+    <View style={themedStyles.container}>
+      <View style={themedStyles.header}>
+        <Text style={themedStyles.headerText}>Item {index + 1}</Text>
         {showRemoveButton && (
-          <TouchableOpacity onPress={() => onRemove(index)} style={styles.removeButton}>
-            <Text style={styles.removeButtonText}>✕</Text>
+          <TouchableOpacity onPress={() => onRemove(index)} style={themedStyles.removeButton}>
+            <Text style={themedStyles.removeButtonText}>✕</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <View style={styles.row}>
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Item Code *</Text>
+      <View style={themedStyles.row}>
+        <View style={themedStyles.fieldContainer}>
+          <Text style={themedStyles.label}>Item Code *</Text>
           <LinkField
             doctype="Item"
             fieldname="item_code"
@@ -73,11 +76,11 @@ const ItemRow: React.FC<ItemRowProps> = ({
         </View>
       </View>
 
-      <View style={styles.row}>
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Item Name</Text>
+      <View style={themedStyles.row}>
+        <View style={themedStyles.fieldContainer}>
+          <Text style={themedStyles.label}>Item Name</Text>
           <TextInput
-            style={[styles.input, styles.readOnlyInput]}
+            style={[themedStyles.input, themedStyles.readOnlyInput]}
             value={item.item_name || ''}
             editable={false}
             placeholder="Item name will appear here"
@@ -85,11 +88,11 @@ const ItemRow: React.FC<ItemRowProps> = ({
         </View>
       </View>
 
-      <View style={styles.row}>
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Description</Text>
+      <View style={themedStyles.row}>
+        <View style={themedStyles.fieldContainer}>
+          <Text style={themedStyles.label}>Description</Text>
           <TextInput
-            style={[styles.input, styles.readOnlyInput, styles.textArea]}
+            style={[themedStyles.input, themedStyles.readOnlyInput, themedStyles.textArea]}
             value={item.description || ''}
             editable={false}
             multiline
@@ -99,11 +102,11 @@ const ItemRow: React.FC<ItemRowProps> = ({
         </View>
       </View>
 
-      <View style={styles.row}>
-        <View style={[styles.fieldContainer, styles.halfWidth]}>
-          <Text style={styles.label}>Quantity *</Text>
+      <View style={themedStyles.row}>
+        <View style={[themedStyles.fieldContainer, themedStyles.halfWidth]}>
+          <Text style={themedStyles.label}>Quantity *</Text>
           <TextInput
-            style={styles.input}
+            style={themedStyles.input}
             value={item.qty?.toString() || ''}
             onChangeText={handleQtyChange}
             keyboardType="numeric"
@@ -111,8 +114,8 @@ const ItemRow: React.FC<ItemRowProps> = ({
           />
         </View>
 
-        <View style={[styles.fieldContainer, styles.halfWidth]}>
-          <Text style={styles.label}>UOM</Text>
+        <View style={[themedStyles.fieldContainer, themedStyles.halfWidth]}>
+          <Text style={themedStyles.label}>UOM</Text>
           <LinkField
             doctype="UOM"
             fieldname="uom"
@@ -123,11 +126,11 @@ const ItemRow: React.FC<ItemRowProps> = ({
         </View>
       </View>
 
-      <View style={styles.row}>
-        <View style={[styles.fieldContainer, styles.halfWidth]}>
-          <Text style={styles.label}>Rate *</Text>
+      <View style={themedStyles.row}>
+        <View style={[themedStyles.fieldContainer, themedStyles.halfWidth]}>
+          <Text style={themedStyles.label}>Rate *</Text>
           <TextInput
-            style={[styles.input, item.rate_fetched && styles.readOnlyInput]}
+            style={[themedStyles.input, item.rate_fetched && themedStyles.readOnlyInput]}
             value={item.rate?.toString() || ''}
             editable={!item.rate_fetched}
             onChangeText={handleRateChange}
@@ -136,10 +139,10 @@ const ItemRow: React.FC<ItemRowProps> = ({
           />
         </View>
 
-        <View style={[styles.fieldContainer, styles.halfWidth]}>
-          <Text style={styles.label}>Amount</Text>
+        <View style={[themedStyles.fieldContainer, themedStyles.halfWidth]}>
+          <Text style={themedStyles.label}>Amount</Text>
           <TextInput
-            style={[styles.input, styles.readOnlyInput]}
+            style={[themedStyles.input, themedStyles.readOnlyInput]}
             value={`৳${item.amount?.toFixed(2) || '0.00'}`}
             editable={false}
           />
@@ -147,9 +150,9 @@ const ItemRow: React.FC<ItemRowProps> = ({
       </View>
 
       {showWarehouseField && (
-        <View style={styles.row}>
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Warehouse</Text>
+        <View style={themedStyles.row}>
+          <View style={themedStyles.fieldContainer}>
+            <Text style={themedStyles.label}>Warehouse</Text>
             <LinkField
               doctype="Warehouse"
               fieldname="warehouse"
@@ -164,75 +167,84 @@ const ItemRow: React.FC<ItemRowProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#fff',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  headerText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  removeButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#ff4757',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  removeButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  row: {
-    flexDirection: 'row',
-    marginBottom: 12,
-    gap: 12,
-  },
-  fieldContainer: {
-    flex: 1,
-  },
-  halfWidth: {
-    flex: 0.5,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
-  readOnlyInput: {
-    backgroundColor: '#f8f9fa',
-    color: '#6c757d',
-  },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-});
+const useThemedStyles = () => {
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const borderColor = useThemeColor({ light: '#e0e0e0', dark: '#333' }, 'icon');
+  const readOnlyBackgroundColor = useThemeColor({ light: '#f8f9fa', dark: '#2c2c2e' }, 'background');
+  const readOnlyTextColor = useThemeColor({ light: '#6c757d', dark: '#a0a0a0' }, 'text');
+
+  return StyleSheet.create({
+    container: {
+      borderWidth: 1,
+      borderColor: borderColor,
+      borderRadius: 8,
+      padding: 16,
+      marginBottom: 12,
+      backgroundColor: backgroundColor,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+      paddingBottom: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: borderColor,
+    },
+    headerText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: textColor,
+    },
+    removeButton: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: '#ff4757',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    removeButtonText: {
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    row: {
+      flexDirection: 'row',
+      marginBottom: 12,
+      gap: 12,
+    },
+    fieldContainer: {
+      flex: 1,
+    },
+    halfWidth: {
+      flex: 0.5,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: textColor,
+      marginBottom: 6,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: borderColor,
+      borderRadius: 6,
+      padding: 12,
+      fontSize: 16,
+      backgroundColor: backgroundColor,
+      color: textColor,
+    },
+    readOnlyInput: {
+      backgroundColor: readOnlyBackgroundColor,
+      color: readOnlyTextColor,
+    },
+    textArea: {
+      minHeight: 80,
+      textAlignVertical: 'top',
+    },
+  });
+};
 
 export default ItemRow;

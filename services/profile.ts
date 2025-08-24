@@ -12,6 +12,7 @@ export interface UserProfile {
   location?: string;
   bio?: string;
   image?: string;
+  user_image?: string;
   role_profile_name?: string;
   creation?: string;
   last_login?: string;
@@ -46,7 +47,7 @@ export const updateUserProfile = async (profileData: Partial<UserProfile>): Prom
   try {
     const data = await apiRequest('User', {
       method: 'PUT', // Assuming PUT for update
-      body: JSON.stringify(profileData),
+      data: profileData,
       headers: {
         'Content-Type': 'application/json',
       },

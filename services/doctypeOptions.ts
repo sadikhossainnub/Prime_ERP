@@ -5,17 +5,8 @@ async function fetchOptions(doctype: string, search = '') {
     let fieldsToFetch = ["name"];
     let titleField = "name";
 
-    if (doctype === "Customer") {
-      // For Customer, do not fetch 'title' field, as it causes a Frappe DataError
-      // The name field will be used for both value and label
-    } else {
-      // 1. Get the title field for the doctype
-      const titleRes = await apiRequest(`method/frappe.desk.search.get_title_field`, {
-        params: { doctype },
-      });
-      titleField = titleRes.message || "name";
-      fieldsToFetch.push(titleField);
-    }
+    // Always use 'name' as the title field to avoid server errors
+    fieldsToFetch.push("name");
 
     // 2. Fetch options with name (+ title field if not Customer)
     const res = await apiRequest(`resource/${encodeURIComponent(doctype)}`, {

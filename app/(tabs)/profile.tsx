@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/ThemedText';
 import { BASE_URL } from '@/constants/config';
-import { setSid } from '@/services/api';
-import { getUserProfile, UserProfile } from '@/services/profile';
+import api, { setSid } from '@/services/api';
+import { UserProfile } from '@/services/profile';
 import * as SecureStore from 'expo-secure-store'; // Import SecureStore
 import React, { useEffect, useState } from 'react';
 import {
@@ -58,13 +58,11 @@ export default function ProfileScreen() {
     }
   };
 
-  const fetchProfile = async () => {
+ const fetchProfile = async () => {
     try {
       setError(null);
       console.log('Fetching profile data...');
-      console.log('Current user from auth context:', user);
-      
-      const profileData = await getUserProfile();
+      const profileData = await api.get_user_profile();
       console.log('Profile data received:', profileData);
       setProfile(profileData);
     } catch (err: any) {
@@ -102,7 +100,7 @@ export default function ProfileScreen() {
     fetchProfile();
   }, []);
 
-  const onRefresh = () => {
+   const onRefresh = () => {
     setRefreshing(true);
     fetchProfile();
   };
@@ -137,7 +135,7 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#4f46e5" />
+        <ActivityIndicator size="large" color="#00BCD4" />
         <ThemedText style={styles.loadingText}>Loading Profile...</ThemedText>
       </View>
     );
@@ -146,7 +144,7 @@ export default function ProfileScreen() {
   if (!profile && error) {
     return (
       <View style={styles.centerContainer}>
-        <Icon name="account-alert" size={64} color="#ef4444" />
+        <Icon name="account-alert" size={64} color="#EF4444" />
         <ThemedText style={styles.errorText}>Failed to load profile</ThemedText>
         <ThemedText style={styles.errorSubText}>{error}</ThemedText>
         <TouchableOpacity style={styles.retryButton} onPress={fetchProfile}>
@@ -166,16 +164,20 @@ export default function ProfileScreen() {
       {/* Profile Header */}
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
-          {profile?.image ? (
-            <Image source={{ uri: `${BASE_URL}${profile.image}` }} style={styles.avatar} />
+          {profile?.user_image ? (
+            <Image
+              source={{ uri: `${BASE_URL}${profile.user_image}` }}
+              style={styles.avatar}
+              onError={(error) => console.error('Image load error:', error)}
+            />
           ) : (
             <View style={styles.avatarPlaceholder}>
-              <Icon name="account" size={48} color="#6b7280" />
+              <Icon name="account" size={48} color="#B0B0B0" />
             </View>
           )}
         </View>
-        <ThemedText type="title" style={styles.name}>
-          {profile?.full_name || 'Unknown User'}
+          <ThemedText type="title" style={styles.name}>
+            {profile?.full_name || 'Unknown User'}
         </ThemedText>
         <ThemedText style={styles.email}>{profile?.email}</ThemedText>
         {profile?.role_profile_name && (
@@ -195,7 +197,7 @@ export default function ProfileScreen() {
         
         <View style={styles.card}>
           <View style={styles.infoRow}>
-            <Icon name="account-outline" size={20} color="#6b7280" />
+            <Icon name="account-outline" size={20} color="#B0B0B0" />
             <View style={styles.infoContent}>
               <ThemedText style={styles.infoLabel}>Full Name</ThemedText>
               <ThemedText style={styles.infoValue}>
@@ -207,7 +209,7 @@ export default function ProfileScreen() {
 
         <View style={styles.card}>
           <View style={styles.infoRow}>
-            <Icon name="email-outline" size={20} color="#6b7280" />
+            <Icon name="email-outline" size={20} color="#B0B0B0" />
             <View style={styles.infoContent}>
               <ThemedText style={styles.infoLabel}>Email</ThemedText>
               <ThemedText style={styles.infoValue}>
@@ -220,7 +222,7 @@ export default function ProfileScreen() {
         {profile?.phone && (
           <View style={styles.card}>
             <View style={styles.infoRow}>
-              <Icon name="phone-outline" size={20} color="#6b7280" />
+              <Icon name="phone-outline" size={20} color="#B0B0B0" />
               <View style={styles.infoContent}>
                 <ThemedText style={styles.infoLabel}>Phone</ThemedText>
                 <ThemedText style={styles.infoValue}>{profile.phone}</ThemedText>
@@ -232,7 +234,7 @@ export default function ProfileScreen() {
         {profile?.mobile_no && (
           <View style={styles.card}>
             <View style={styles.infoRow}>
-              <Icon name="cellphone" size={20} color="#6b7280" />
+              <Icon name="cellphone" size={20} color="#B0B0B0" />
               <View style={styles.infoContent}>
                 <ThemedText style={styles.infoLabel}>Mobile</ThemedText>
                 <ThemedText style={styles.infoValue}>{profile.mobile_no}</ThemedText>
@@ -244,7 +246,7 @@ export default function ProfileScreen() {
         {profile?.location && (
           <View style={styles.card}>
             <View style={styles.infoRow}>
-              <Icon name="map-marker-outline" size={20} color="#6b7280" />
+              <Icon name="map-marker-outline" size={20} color="#B0B0B0" />
               <View style={styles.infoContent}>
                 <ThemedText style={styles.infoLabel}>Location</ThemedText>
                 <ThemedText style={styles.infoValue}>{profile.location}</ThemedText>
@@ -262,7 +264,7 @@ export default function ProfileScreen() {
         
         <View style={styles.card}>
           <View style={styles.infoRow}>
-            <Icon name="calendar-outline" size={20} color="#6b7280" />
+            <Icon name="calendar-outline" size={20} color="#B0B0B0" />
             <View style={styles.infoContent}>
               <ThemedText style={styles.infoLabel}>Member Since</ThemedText>
               <ThemedText style={styles.infoValue}>
@@ -274,7 +276,7 @@ export default function ProfileScreen() {
 
         <View style={styles.card}>
           <View style={styles.infoRow}>
-            <Icon name="login" size={20} color="#6b7280" />
+            <Icon name="login" size={20} color="#B0B0B0" />
             <View style={styles.infoContent}>
               <ThemedText style={styles.infoLabel}>Last Login</ThemedText>
               <ThemedText style={styles.infoValue}>
@@ -311,7 +313,7 @@ export default function ProfileScreen() {
         </ThemedText>
         <View style={styles.card}>
           <View style={styles.infoRow}>
-            <Icon name="fingerprint" size={20} color="#6b7280" />
+            <Icon name="fingerprint" size={20} color="#B0B0B0" />
             <View style={styles.infoContent}>
               <ThemedText style={styles.infoLabel}>Biometric Login</ThemedText>
               <ThemedText style={styles.infoValue}>
@@ -321,8 +323,8 @@ export default function ProfileScreen() {
             <Switch
               value={biometricEnabled}
               onValueChange={handleBiometricToggle}
-              trackColor={{ false: '#767577', true: '#81b0ff' }}
-              thumbColor={biometricEnabled ? '#4f46e5' : '#f4f3f4'}
+              trackColor={{ false: '#767577', true: '#00BCD4' }}
+              thumbColor={biometricEnabled ? '#00BCD4' : '#E0E0E0'}
             />
           </View>
         </View>
@@ -331,7 +333,7 @@ export default function ProfileScreen() {
       {/* Actions */}
       <View style={styles.section}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Icon name="logout" size={20} color="#ffffff" />
+          <Icon name="logout" size={20} color="#FFFFFF" />
           <ThemedText style={styles.logoutButtonText}>Logout</ThemedText>
         </TouchableOpacity>
       </View>
@@ -344,7 +346,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingHorizontal: 16,
     paddingBottom: 20,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#121212', // New dark background
   },
   centerContainer: {
     flex: 1,
@@ -355,43 +357,43 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#6b7280',
+    color: '#B0B0B0', // Icon color
   },
   errorText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ef4444',
+    color: '#EF4444',
     textAlign: 'center',
     marginTop: 12,
   },
   errorSubText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#B0B0B0', // Icon color
     textAlign: 'center',
     marginTop: 8,
   },
   retryButton: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#00BCD4', // Tint color
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
     marginTop: 16,
   },
   retryButtonText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   header: {
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#2C2C2E', // Slightly lighter dark for header
     borderRadius: 12,
     padding: 24,
     marginBottom: 20,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   avatarContainer: {
     marginBottom: 16,
@@ -405,7 +407,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#333333', // Darker background for placeholder
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -417,11 +419,11 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 16,
-    color: '#6b7280',
+    color: '#B0B0B0', // Icon color
     marginBottom: 12,
   },
   roleBadge: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#005F6B', // Darker tint for badge background
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 16,
@@ -429,7 +431,7 @@ const styles = StyleSheet.create({
   roleText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#1d4ed8',
+    color: '#00BCD4', // Tint color for badge text
   },
   section: {
     marginBottom: 20,
@@ -438,17 +440,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: '#374151',
+    color: '#E0E0E0', // Text color
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#333333', // Slightly lighter dark for cards
     borderRadius: 8,
     padding: 16,
     marginBottom: 8,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.2,
     shadowRadius: 2,
   },
   infoRow: {
@@ -461,16 +463,16 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: '#6b7280',
+    color: '#B0B0B0', // Icon color
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#374151',
+    color: '#E0E0E0', // Text color
   },
   logoutButton: {
-    backgroundColor: '#ef4444',
+    backgroundColor: '#EF4444', // Red for logout
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -480,11 +482,11 @@ const styles = StyleSheet.create({
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   logoutButtonText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,

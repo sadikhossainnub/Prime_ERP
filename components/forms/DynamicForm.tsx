@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { API_KEY, API_SECRET, BASE_URL } from '../../constants/config';
 import { getDoctypeFields } from '../../services/fieldpropaty';
+import { createItem } from '../../services/item';
 import { Doctype } from '../../types/doctypes';
 import StyledButton from '../ui/StyledButton';
 import DynamicField from './DynamicField';
@@ -33,6 +34,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [fieldsLoading, setFieldsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchFields();
@@ -46,7 +48,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       const response = await getDoctypeFields(doctype);
       
       // Filter out system fields and sort by idx if available
-      const filteredFields = response.sort((a: any, b: any) => (a.idx || 0) - (b.idx || 0));
+      let filteredFields = response.sort((a: any, b: any) => (a.idx || 0) - (b.idx || 0));
+
+      if (doctype === 'Item') {
+        const itemTypeFieldIndex = filteredFields.findIndex(field => field.fieldname === 'item_type');
+        const itemGroupFieldIndex = filteredFields.findIndex(field => field.fieldname === 'item_group');
+
+        if (itemTypeFieldIndex !== -1 && itemGroupFieldIndex !== -1) {
+          const itemTypeField = filteredFields.splice(itemTypeFieldIndex, 1)[0];
+          const newIndex = filteredFields.findIndex(field => field.fieldname === 'item_group');
+          filteredFields.splice(newIndex + 1, 0, itemTypeField);
+        }
+      }
       
       setFields(filteredFields);
       console.log(`Successfully loaded ${filteredFields.length} fields for ${doctype}`);
@@ -134,6 +147,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     }
   };
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchFields().then(() => setRefreshing(false));
+  }, []);
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -166,6 +184,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const clearForm = () => {
+    setFormData({});
+    setErrors({});
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       Alert.alert('Validation Error', 'Please fix the errors in the form');
@@ -174,28 +197,37 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     setLoading(true);
     try {
-      const endpoint = mode === 'create' ? doctype : `${doctype}/${initialData.name || formData.name}`;
-      const method = mode === 'create' ? 'POST' : 'PUT';
-      
-      const response = await fetch(`${BASE_URL}/api/resource/${endpoint}`, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `token ${API_KEY}:${API_SECRET}`,
-        },
-        body: JSON.stringify(formData),
-      });
+      let responseData;
+      if (doctype === 'Item' && mode === 'create') {
+        responseData = await createItem(formData);
+      } else {
+        const endpoint = mode === 'create' ? doctype : `${doctype}/${initialData.name || formData.name}`;
+        const method = mode === 'create' ? 'POST' : 'PUT';
+        
+        const response = await fetch(`${BASE_URL}/api/resource/${endpoint}`, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `token ${API_KEY}:${API_SECRET}`,
+          },
+          body: JSON.stringify(formData),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Failed to ${mode} ${doctype}`);
+        if (!response.ok) {
+          throw new Error(`Failed to ${mode} ${doctype}`);
+        }
+        responseData = await response.json();
       }
-
-      const responseData = await response.json();
 
       Alert.alert(
         'Success',
         `${doctype} ${mode === 'create' ? 'created' : 'updated'} successfully!`,
-        [{ text: 'OK', onPress: () => onSuccess?.(responseData.data) }]
+        [{ text: 'OK', onPress: () => {
+          if (doctype === 'Item' && mode === 'create') {
+            clearForm();
+          }
+          onSuccess?.(responseData.data);
+        }}]
       );
     } catch (error) {
       console.error(`Error ${mode === 'create' ? 'creating' : 'updating'} ${doctype}:`, error);
@@ -220,8 +252,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     
     fields.forEach(field => {
       // Create sections based on field patterns or you can enhance this logic
-      let sectionTitle = 'General Information';
-      
+      // By default, no section title is assigned
+      let sectionTitle = '';
+
       if (field.fieldname.includes('email') || field.fieldname.includes('phone') ||
                  field.fieldname.includes('mobile') || field.fieldname.includes('contact')) {
         sectionTitle = 'Contact Information';
@@ -232,6 +265,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
       } else if (field.fieldname.includes('stock') || field.fieldname.includes('qty') ||
                  field.fieldname.includes('inventory') || field.fieldname.includes('warehouse')) {
         sectionTitle = 'Inventory Information';
+      } else {
+        // Only group fields under a "General Information" title if no other section applies
+        sectionTitle = 'General Information';
       }
 
       if (!currentSection || currentSection.title !== sectionTitle) {
@@ -264,14 +300,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
   const sections = groupFieldsIntoSections(fields);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+    >
       <Text style={styles.title}>
         {title || `${mode === 'create' ? 'Create' : 'Edit'} ${doctype}`}
       </Text>
 
       {sections.map((section, index) => (
         <View key={index} style={styles.section}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
+          {section.title ? <Text style={styles.sectionTitle}>{section.title}</Text> : null}
           
           {section.fields.map((field) => (
             <DynamicField

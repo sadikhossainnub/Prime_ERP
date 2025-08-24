@@ -174,9 +174,71 @@ export const getCommonDoctypeFields = async (doctype: string): Promise<Doctype[]
       { fieldname: 'customer_type', label: 'Customer Type', fieldtype: 'Select', options: 'Individual\nCompany', default: 'Individual' },
       { fieldname: 'customer_group', label: 'Customer Group', fieldtype: 'Link', options: 'Customer Group' },
       { fieldname: 'territory', label: 'Territory', fieldtype: 'Link', options: 'Territory' },
-      { fieldname: 'email_id', label: 'Email ID', fieldtype: 'Data' },
-      { fieldname: 'mobile_no', label: 'Mobile No', fieldtype: 'Data' },
-      { fieldname: 'tax_id', label: 'Tax ID', fieldtype: 'Data' },
+      {
+        "fieldname": "c_contact_person_name",
+        "fieldtype": "Data",
+        "label": "Name",
+        "mandatory": 1
+      },
+      {
+        "default": "+880",
+        "fieldname": "c_mobile_number",
+        "fieldtype": "Data",
+        "label": "Mobile Number",
+        "mandatory": 1
+      },
+      {
+        "default": "+880",
+        "fieldname": "c_office_mobile",
+        "fieldtype": "Data",
+        "label": "Office Mobile"
+      },
+      {
+        "fieldname": "c_email",
+        "fieldtype": "Data",
+        "label": "Email"
+      },
+      {
+        "fieldname": "c_email_personal",
+        "fieldtype": "Data",
+        "label": "Email Personal"
+      },
+      {
+        "fieldname": "c_address_section",
+        "fieldtype": "Section Break",
+        "label": "Address"
+      },
+      {
+        "fieldname": "c_address",
+        "fieldtype": "Data",
+        "label": "Address",
+        "mandatory": 1
+      },
+      {
+        "fieldname": "c_division",
+        "fieldtype": "Link",
+        "label": "Division",
+        "options": "Division",
+        "mandatory": 1
+      },
+      {
+        "fieldname": "c_district",
+        "fieldtype": "Link",
+        "label": "District",
+        "options": "District",
+        "mandatory": 1
+      },
+      {
+        "fieldname": "c_thana",
+        "fieldtype": "Link",
+        "label": "Thana",
+        "options": "Thana"
+      },
+      {
+        "fieldname": "c_post_code",
+        "fieldtype": "Data",
+        "label": "Post Code"
+      }
     ],
     'Item': [
   {
@@ -205,17 +267,8 @@ export const getCommonDoctypeFields = async (doctype: string): Promise<Doctype[]
   {
     "fieldname": "item_type",
     "label": "Item Type",
-    "fieldtype": "Select"
-  },
-  {
-    "fieldname": "is_stock_item",
-    "label": "Maintain Stock",
-    "fieldtype": "Check"
-  },
-  {
-    "fieldname": "has_variants",
-    "label": "Has Variants",
-    "fieldtype": "Check"
+    "fieldtype": "Select",
+    "options": "\nPaper CUP\nPaper Cup Lid\nPaper Cup Jacket\nPaper Cup Holder\nOuter BOX\nBags\nTable Matt\nFood Tray\nFood Wrapping Paper\nSticker\nCone\nLeaflet\nBusiness Card\nHang Tag\nEnvelope\nInvoice\nFile Folder\nBrochure\nCalendar\nFood Menu Card\nDairy\nNotebook\nWaffle Box"
   },
   {
     "fieldname": "opening_stock",
@@ -243,319 +296,446 @@ export const getCommonDoctypeFields = async (doctype: string): Promise<Doctype[]
     "fieldtype": "Attach Image"
   },
   {
-    "fieldname": "paper_cup_size",
-    "label": "Paper Cup Size",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper CUP' || doc.item_type == 'Paper Cup Lid' || doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder'",
+   "fieldname": "paper_cup_size",
+   "fieldtype": "Select",
+   "label": "Paper Cup Size",
+   "options": "\n60 ML\n70 ML\n80 ML\n100 ML\n120 ML\n150 ML Auto\n150 ML Manual\n200 ML\n210 ML\n250 ML\n300 ML\n350 ML\n450 ML\n8 Oz ML\n12 Oz ML\n16 Oz ML"
   },
   {
-    "fieldname": "box_name",
-    "label": "Box Name",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Paper CUP'",
+   "fieldname": "paper_cup_type",
+   "fieldtype": "Select",
+   "label": "Paper Cup Type",
+   "options": "\nHot\nCold\nIce cream\nHot & Cold"
   },
   {
-    "fieldname": "file_folder_name",
-    "label": "File Folder Name",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Paper CUP'",
+   "fieldname": "paper_cup_wall",
+   "fieldtype": "Select",
+   "label": "Paper Cup Wall",
+   "options": "\nSingle Wall\nDouble Wall\nRipple Wall\nDouble PE"
   },
   {
-    "fieldname": "envelop_name",
-    "label": "Envelop Name",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Paper CUP'",
+   "fieldname": "single_wall_paper_gsm",
+   "fieldtype": "Select",
+   "label": "Single Wall Paper Gsm",
+   "options": "\n28\n30\n35\n40\n45\n50\n55\n60\n65\n70\n75\n80\n85\n90\n95\n100\n105\n110\n115\n120\n125\n130\n135\n140\n145\n150\n155\n160\n165\n170\n175\n180\n185\n190\n195\n200\n205\n210\n215\n220\n225\n230\n235\n240\n245\n250\n255\n260\n265\n270\n275\n280\n285\n290\n295\n300\n305\n310\n315\n320\n325\n330\n335\n340\n345\n350\n355\n360\n365\n370\n375\n380\n385\n390\n395\n400\n405\n410\n415\n420\n425\n430\n435\n440\n445\n450\n455\n460\n465\n470\n475\n480\n485\n490\n495\n500\n505\n510\n515\n520\n525\n530\n535\n540\n545\n550\n555\n560\n565\n570\n575\n580\n585\n590\n595\n600\n605\n610\n615\n620\n625\n630\n635\n640\n645\n650\n655\n660\n665\n670\n675\n680\n685\n690\n695\n700\n705\n710\n715\n720\n725\n730\n735\n740\n745\n750\n755\n760\n765\n770\n775\n780\n785\n790\n795\n800"
   },
   {
-    "fieldname": "window",
-    "label": "Window",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper CUP'",
+   "fieldname": "double_wall_paper_gsm",
+   "fieldtype": "Select",
+   "label": "Double Wall Paper GSM",
+   "options": "\n28\n30\n35\n40\n45\n50\n55\n60\n65\n70\n75\n80\n85\n90\n95\n100\n105\n110\n115\n120\n125\n130\n135\n140\n145\n150\n155\n160\n165\n170\n175\n180\n185\n190\n195\n200\n205\n210\n215\n220\n225\n230\n235\n240\n245\n250\n255\n260\n265\n270\n275\n280\n285\n290\n295\n300\n305\n310\n315\n320\n325\n330\n335\n340\n345\n350\n355\n360\n365\n370\n375\n380\n385\n390\n395\n400\n405\n410\n415\n420\n425\n430\n435\n440\n445\n450\n455\n460\n465\n470\n475\n480\n485\n490\n495\n500\n505\n510\n515\n520\n525\n530\n535\n540\n545\n550\n555\n560\n565\n570\n575\n580\n585\n590\n595\n600\n605\n610\n615\n620\n625\n630\n635\n640\n645\n650\n655\n660\n665\n670\n675\n680\n685\n690\n695\n700\n705\n710\n715\n720\n725\n730\n735\n740\n745\n750\n755\n760\n765\n770\n775\n780\n785\n790\n795\n800"
   },
   {
-    "fieldname": "paper_cup_type",
-    "label": "Paper Cup Type",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper CUP'",
+   "fieldname": "bottom_gsm",
+   "fieldtype": "Select",
+   "label": "Bottom GSM",
+   "options": "\n28\n30\n35\n40\n45\n50\n55\n60\n65\n70\n75\n80\n85\n90\n95\n100\n105\n110\n115\n120\n125\n130\n135\n140\n145\n150\n155\n160\n165\n170\n175\n180\n185\n190\n195\n200\n205\n210\n215\n220\n225\n230\n235\n240\n245\n250\n255\n260\n265\n270\n275\n280\n285\n290\n295\n300\n305\n310\n315\n320\n325\n330\n335\n340\n345\n350\n355\n360\n365\n370\n375\n380\n385\n390\n395\n400\n405\n410\n415\n420\n425\n430\n435\n440\n445\n450\n455\n460\n465\n470\n475\n480\n485\n490\n495\n500\n505\n510\n515\n520\n525\n530\n535\n540\n545\n550\n555\n560\n565\n570\n575\n580\n585\n590\n595\n600\n605\n610\n615\n620\n625\n630\n635\n640\n645\n650\n655\n660\n665\n670\n675\n680\n685\n690\n695\n700\n705\n710\n715\n720\n725\n730\n735\n740\n745\n750\n755\n760\n765\n770\n775\n780\n785\n790\n795\n800"
   },
   {
-    "fieldname": "paper_cup_wall",
-    "label": "Paper Cup Wall",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper CUP'",
+   "fieldname": "bottom_size",
+   "fieldtype": "Select",
+   "label": "Bottom Size",
+   "options": "\n55 MM\n60 MM\n65 MM\n70 MM\n75 MM\n80 MM\n85 MM\n90 MM\n95 MM"
   },
   {
-    "fieldname": "single_wall_paper_gsm",
-    "label": "Single Wall Paper Gsm",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper CUP' || doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Table Matt' || doc.item_type == 'Food Tray' || doc.item_type == 'Food Wrapping Paper' || doc.item_type == 'Sticker' || doc.item_type == 'Cone' || doc.item_type == 'Leaflet' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag' || doc.item_type == 'Envelope' || doc.item_type == 'Invoice' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Calendar' || doc.item_type == 'Food Menu Card' || doc.item_type == 'Diery'",
+   "fieldname": "printing_colour",
+   "fieldtype": "Select",
+   "label": "Printing Colour",
+   "options": "\n1\n2\n3\n4\n5\n6\n7\n8"
   },
   {
-    "fieldname": "double_wall_paper_gsm",
-    "label": "Double Wall Paper GSM",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper CUP' || doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Table Matt' || doc.item_type == 'Food Tray' || doc.item_type == 'Sticker' || doc.item_type == 'Cone' || doc.item_type == 'Leaflet' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag' || doc.item_type == 'Envelope' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Calendar' || doc.item_type == 'Food Menu Card' || doc.item_type == 'Diery' || doc.item_type == 'Notebook'",
+   "fieldname": "laminnation",
+   "fieldtype": "Select",
+   "label": "Laminnation",
+   "options": "\nGlossy\nMatt\nSilver\nBurnish Glossy\nBurnish Matt\nSpot\nMatt Spot"
   },
   {
-    "fieldname": "bottom_gsm",
-    "label": "Bottom GSM",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper CUP' || doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Table Matt' || doc.item_type == 'Food Tray' || doc.item_type == 'Sticker' || doc.item_type == 'Cone' || doc.item_type == 'Leaflet' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag' || doc.item_type == 'Envelope' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Calendar' || doc.item_type == 'Food Menu Card' || doc.item_type == 'Diery' || doc.item_type == 'Notebook' || doc.item_type == 'Invoice'",
+   "fieldname": "foil",
+   "fieldtype": "Select",
+   "label": "Foil",
+   "options": "\nGolden Foil\nSilver Foil\nRed Foil\nGreen Foil\nBlue Foil\nPink Foil"
   },
   {
-    "fieldname": "bottom_size",
-    "label": "Bottom Size",
-    "fieldtype": "Select"
+   "depends_on": "item_type",
+   "fieldname": "origin",
+   "fieldtype": "Select",
+   "label": "Origin",
+   "options": "\nChina Paper\nBangladesh Paper\nIndia Paper\nRussia Paper\nKorean Paper\nSweden Paper"
   },
   {
-    "fieldname": "office_document_name",
-    "label": "Office Document Name",
-    "fieldtype": "Link"
+   "depends_on": "item_type",
+   "fieldname": "brand",
+   "fieldtype": "Link",
+   "label": "Brand",
+   "options": "Brand"
   },
   {
-    "fieldname": "printing_colour",
-    "label": "Printing Colour",
-    "fieldtype": "Select"
+   "depends_on": "item_type",
+   "fieldname": "sub_brand",
+   "fieldtype": "Link",
+   "label": "Sub Brand",
+   "options": "Sub Brand"
   },
   {
-    "fieldname": "laminnation",
-    "label": "Laminnation",
-    "fieldtype": "Select"
+   "fieldname": "column_break_yonj",
+   "fieldtype": "Column Break"
   },
   {
-    "fieldname": "foil",
-    "label": "Foil",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Lid'",
+   "fieldname": "lid_size",
+   "fieldtype": "Select",
+   "label": "Lid Size",
+   "options": "\n70 MM\n80 MM\n90 MM"
   },
   {
-    "fieldname": "tear_away_label",
-    "label": "Tear Away Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Lid'",
+   "fieldname": "lid_color",
+   "fieldtype": "Select",
+   "label": "Lid Color",
+   "options": "\nWhite\nBlack\nTransparent"
   },
   {
-    "fieldname": "heat_transfer_label",
-    "label": "Heat Transfer Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Lid'",
+   "fieldname": "lid_type",
+   "fieldtype": "Select",
+   "label": "Lid Type",
+   "options": "\nFlat lid\nLock lid"
   },
   {
-    "fieldname": "origin",
-    "label": "Origin",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Lid'",
+   "fieldname": "quality",
+   "fieldtype": "Select",
+   "label": "Quality",
+   "options": "\nHeavy Lid\nLight Lid"
   },
   {
-    "fieldname": "brand",
-    "label": "Brand",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Table Matt' || doc.item_type == 'Food Tray' || doc.item_type == 'Food Wrapping Paper' || doc.item_type == 'Sticker' || doc.item_type == 'Cone' || doc.item_type == 'Leaflet' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag'\t || doc.item_type == 'Envelope' || doc.item_type == 'Invoice' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Calendar' || doc.item_type == 'Food Menu Card' || doc.item_type == 'Diery' || doc.item_type == 'Notebook'",
+   "fieldname": "paper_name",
+   "fieldtype": "Select",
+   "label": "Paper Name",
+   "options": "\nOil Paper\nKorian Liner\nAmerican white liner board\nKorean white liner board\nAzad white liner board\nBangla white liner board\nAmber Off-Set Paper\nPartex Off-Set Paper\nSonali Off-Set Paper\nBangla Sticker\nA1 Sticker\nK-Tak Sticker\nKorean Kraft\nAustralian Kraft\nAmerican Kraft\nBangla Liner\nDuplex Board Sheet\nArt Paper\nArt Card\nSwedish Board"
   },
   {
-    "fieldname": "sub_brand",
-    "label": "Sub Brand",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Table Matt' || doc.item_type == 'Food Tray' || doc.item_type == 'Food Wrapping Paper' || doc.item_type == 'Cone' || doc.item_type == 'Leaflet' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag'\t || doc.item_type == 'Envelope' || doc.item_type == 'Invoice' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Calendar' || doc.item_type == 'Food Menu Card' || doc.item_type == 'Diery' || doc.item_type == 'Notebook'",
+   "fieldname": "paper_gsm",
+   "fieldtype": "Select",
+   "label": "Paper GSM",
+   "options": "\n28\n30\n35\n40\n45\n50\n55\n60\n65\n70\n75\n80\n85\n90\n95\n100\n105\n110\n115\n120\n125\n130\n135\n140\n145\n150\n155\n160\n165\n170\n175\n180\n185\n190\n195\n200\n205\n210\n215\n220\n225\n230\n235\n240\n245\n250\n255\n260\n265\n270\n275\n280\n285\n290\n295\n300\n305\n310\n315\n320\n325\n330\n335\n340\n345\n350\n355\n360\n365\n370\n375\n380\n385\n390\n395\n400\n405\n410\n415\n420\n425\n430\n435\n440\n445\n450\n455\n460\n465\n470\n475\n480\n485\n490\n495\n500\n505\n510\n515\n520\n525\n530\n535\n540\n545\n550\n555\n560\n565\n570\n575\n580\n585\n590\n595\n600\n605\n610\n615\n620\n625\n630\n635\n640\n645\n650\n655\n660\n665\n670\n675\n680\n685\n690\n695\n700\n705\n710\n715\n720\n725\n730\n735\n740\n745\n750\n755\n760\n765\n770\n775\n780\n785\n790\n795\n800"
   },
   {
-    "fieldname": "lid_size",
-    "label": "Lid Size",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Sticker' || doc.item_type == 'Cone' || doc.item_type == 'Leaflet' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag'\t || doc.item_type == 'Envelope' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Calendar' || doc.item_type == 'Food Menu Card' || doc.item_type == 'Diery' || doc.item_type == 'Notebook'",
+   "fieldname": "printing_metallic",
+   "fieldtype": "Select",
+   "label": "Printing Metallic",
+   "options": "\nSilver Metallic\nGolden Metallic\n7 Color Metallic"
   },
   {
-    "fieldname": "file_folder_size",
-    "label": "File Folder Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Sticker' || doc.item_type == 'Cone' || doc.item_type == 'Leaflet' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag'\t || doc.item_type == 'Envelope' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Calendar' || doc.item_type == 'Food Menu Card' || doc.item_type == 'Diery' || doc.item_type == 'Notebook'",
+   "fieldname": "printing_sandy",
+   "fieldtype": "Select",
+   "label": "Printing Sandy",
+   "options": "\nSandy\nSandy Spot"
   },
   {
-    "fieldname": "lid_color",
-    "label": "Lid Color",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Outer BOX'",
+   "fieldname": "corrugated",
+   "fieldtype": "Select",
+   "label": "Corrugated ",
+   "options": "\n2 Ply\n3 Ply\n5 Ply\n7 Ply"
   },
   {
-    "fieldname": "lid_type",
-    "label": "Lid Type",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Jacket' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Cone' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag' || doc.item_type == 'Envelope' || doc.item_type == 'Invoice' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Diery' || doc.item_type == 'Notebook' || doc.item_type == 'Waffle Box' || doc.item_type == 'Calendar'",
+   "fieldname": "pasting",
+   "fieldtype": "Select",
+   "label": "Pasting",
+   "options": "\nSide Pasting\nSide & Auto Lock\nSide & Hand Lock"
   },
   {
-    "fieldname": "quality",
-    "label": "Quality",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Jacket'",
+   "fieldname": "cup_lock",
+   "fieldtype": "Select",
+   "label": "Cup Lock",
+   "options": "\nLock-Yes\nLock-NO"
   },
   {
-    "fieldname": "paper_name",
-    "label": "Paper Name",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Holder'",
+   "fieldname": "holder_size",
+   "fieldtype": "Link",
+   "label": "Holder Size",
+   "options": "Holder Size"
   },
   {
-    "fieldname": "paper_gsm",
-    "label": "Paper GSM",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Paper Cup Holder' || doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Business Card' || doc.item_type == 'Hang Tag' || doc.item_type == 'Envelope' || doc.item_type == 'File Folder' || doc.item_type == 'Brochure' || doc.item_type == 'Waffle Box'",
+   "fieldname": "ambush",
+   "fieldtype": "Select",
+   "label": "Ambush",
+   "options": "\nAmbush Yes\nAmbush NO"
   },
   {
-    "fieldname": "printing_metallic",
-    "label": "Printing Metallic",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Outer BOX'",
+   "fieldname": "box_name",
+   "fieldtype": "Link",
+   "label": "Box Name",
+   "options": "Box Name"
   },
   {
-    "fieldname": "printing_sandy",
-    "label": "Printing Sandy",
-    "fieldtype": "Select"
+   "fieldname": "column_break_vyvh",
+   "fieldtype": "Column Break"
   },
   {
-    "fieldname": "corrugated",
-    "label": "Corrugated ",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Outer BOX'",
+   "fieldname": "box_size",
+   "fieldtype": "Link",
+   "label": "Box Size",
+   "options": "Box Size"
   },
   {
-    "fieldname": "pasting",
-    "label": "Pasting",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Envelope' || doc.item_type == 'File Folder' || doc.item_type == 'Waffle Box'",
+   "fieldname": "window",
+   "fieldtype": "Select",
+   "label": "Window",
+   "options": "\nWindow-Yes\nWindow-No"
   },
   {
-    "fieldname": "cup_lock",
-    "label": "Cup Lock",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Waffle Box'",
+   "fieldname": "window_size",
+   "fieldtype": "Link",
+   "label": "Window Size ",
+   "options": "Window Size"
   },
   {
-    "fieldname": "holder_size",
-    "label": "Holder Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Bags'",
+   "fieldname": "bag_name",
+   "fieldtype": "Select",
+   "label": "Bag Name",
+   "options": "\nFlat Handle Bag\nTwisted Handle Bag\nDie-Cut Handle Bag\nLaminated Paper Bag"
   },
   {
-    "fieldname": "ambush",
-    "label": "Ambush",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Bags'",
+   "fieldname": "bag_size",
+   "fieldtype": "Link",
+   "label": "Bag Size",
+   "options": "Bag Size"
   },
   {
-    "fieldname": "business_card_size",
-    "label": "Business Card Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Outer BOX' || doc.item_type == 'Bags' || doc.item_type == 'Hang Tag' || doc.item_type == 'File Folder'",
+   "fieldname": "ribbon",
+   "fieldtype": "Select",
+   "label": "Ribbon",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "screen_printing",
-    "label": "Screen Printing",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Table Matt'",
+   "fieldname": "table_matt_size",
+   "fieldtype": "Link",
+   "label": "Table Matt Size",
+   "options": "Table Matt Size"
   },
   {
-    "fieldname": "envelop_size",
-    "label": "Envelop Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Table Matt' || doc.item_type == 'Food Tray' || doc.item_type == 'Sticker' || doc.item_type == 'Business Card'",
+   "fieldname": "die_cut",
+   "fieldtype": "Select",
+   "label": "Die Cut",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "invoice_size",
-    "label": "Invoice Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Food Tray'",
+   "fieldname": "tray_size",
+   "fieldtype": "Link",
+   "label": "Tray Size",
+   "options": "Tray Size"
   },
   {
-    "fieldname": "brand_label",
-    "label": "Brand Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Food Wrapping Paper'",
+   "fieldname": "wrapping_paper_size",
+   "fieldtype": "Link",
+   "label": "Wrapping Paper Size",
+   "options": "Wrapping Paper Size"
   },
   {
-    "fieldname": "woven_label",
-    "label": "Woven Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Sticker'",
+   "fieldname": "sticker_size",
+   "fieldtype": "Link",
+   "label": "Sticker Size",
+   "options": "Sticker Size"
   },
   {
-    "fieldname": "printed_fabric_label",
-    "label": "Printed Fabric Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Cone'",
+   "fieldname": "cone_name",
+   "fieldtype": "Link",
+   "label": "Cone Name",
+   "options": "Cone Name"
   },
   {
-    "fieldname": "satin_label",
-    "label": "Satin Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Cone'",
+   "fieldname": "cone_size",
+   "fieldtype": "Link",
+   "label": "Cone Size",
+   "options": "Cone Size"
   },
   {
-    "fieldname": "box_size",
-    "label": "Box Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Leaflet'",
+   "fieldname": "leaflet_size",
+   "fieldtype": "Link",
+   "label": "Leaflet Size",
+   "options": "Leaflet Size"
   },
   {
-    "fieldname": "window_size",
-    "label": "Window Size ",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Leaflet'",
+   "fieldname": "page_fold",
+   "fieldtype": "Select",
+   "label": "Page Fold",
+   "options": "\n1\n2\n3\n5\n6\n7\n8\n9\n10"
   },
   {
-    "fieldname": "bag_name",
-    "label": "Bag Name",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Business Card'",
+   "fieldname": "business_card_size",
+   "fieldtype": "Link",
+   "label": "Business Card Size",
+   "options": "Business Card Size"
   },
   {
-    "fieldname": "bag_size",
-    "label": "Bag Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "screen_printing",
+   "fieldtype": "Select",
+   "label": "Screen Printing",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "ribbon",
-    "label": "Ribbon",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Envelope'",
+   "fieldname": "envelop_name",
+   "fieldtype": "Link",
+   "label": "Envelop Name",
+   "options": "Envelop Name"
   },
   {
-    "fieldname": "table_matt_size",
-    "label": "Table Matt Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Envelope'",
+   "fieldname": "envelop_size",
+   "fieldtype": "Link",
+   "label": "Envelop Size",
+   "options": "Envelop Size"
   },
   {
-    "fieldname": "die_cut",
-    "label": "Die Cut",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Invoice'",
+   "fieldname": "office_document_name",
+   "fieldtype": "Link",
+   "label": "Office Document Name",
+   "options": "Office Document Name"
   },
   {
-    "fieldname": "tray_size",
-    "label": "Tray Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Invoice'",
+   "fieldname": "invoice_size",
+   "fieldtype": "Link",
+   "label": "Invoice Size",
+   "options": "Invoice Size"
   },
   {
-    "fieldname": "wrapping_paper_size",
-    "label": "Wrapping Paper Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Invoice' || doc.item_type == 'Calendar' || doc.item_type == 'Diery' || doc.item_type == 'Notebook'",
+   "fieldname": "paper_pages",
+   "fieldtype": "Link",
+   "label": "Paper Pages",
+   "options": "Paper Pages"
   },
   {
-    "fieldname": "sticker_size",
-    "label": "Sticker Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "eye_late",
+   "fieldtype": "Select",
+   "label": "Eye Late",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "cone_name",
-    "label": "Cone Name",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "tear_away_label",
+   "fieldtype": "Select",
+   "label": "Tear Away Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "cone_size",
-    "label": "Cone Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "heat_transfer_label",
+   "fieldtype": "Select",
+   "label": "Heat Transfer Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "leaflet_size",
-    "label": "Leaflet Size",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "brand_label",
+   "fieldtype": "Select",
+   "label": "Brand Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "page_fold",
-    "label": "Page Fold",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "woven_label",
+   "fieldtype": "Select",
+   "label": "Woven Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "paper_pages",
-    "label": "Paper Pages",
-    "fieldtype": "Link"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "printed_fabric_label",
+   "fieldtype": "Select",
+   "label": "Printed Fabric Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "eye_late",
-    "label": "Eye Late",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "satin_label",
+   "fieldtype": "Select",
+   "label": "Satin Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "main_label",
-    "label": "Main Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "main_label",
+   "fieldtype": "Select",
+   "label": "Main Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "care_label",
-    "label": "Care Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "care_label",
+   "fieldtype": "Select",
+   "label": "Care Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "size_label",
-    "label": "Size Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "size_label",
+   "fieldtype": "Select",
+   "label": "Size Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "composition_label",
-    "label": "Composition Label",
-    "fieldtype": "Select"
+   "depends_on": "eval:doc.item_type == 'Hang Tag'",
+   "fieldname": "composition_label",
+   "fieldtype": "Select",
+   "label": "Composition Label",
+   "options": "\nYes\nNo"
   },
   {
-    "fieldname": "description",
-    "label": "Description",
-    "fieldtype": "Text Editor"
+   "depends_on": "eval:doc.item_type == 'File Folder'",
+   "fieldname": "file_folder_name",
+   "fieldtype": "Link",
+   "label": "File Folder Name",
+   "options": "File Folder Name"
+  },
+  {
+   "depends_on": "eval:doc.item_type == 'File Folder'",
+   "fieldname": "file_folder_size",
+   "fieldtype": "Link",
+   "label": "File Folder Size",
+   "options": "File Folder Size"
   },
 ],
     'Quotation': [

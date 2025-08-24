@@ -155,6 +155,10 @@ const api = {
       data: { user: email },
     });
   },
+  get_user_profile: async () => {
+    const response = await apiMethodRequest('your_app.api.get_user_profile');
+    return response.message;
+  },
 };
 
 export default api;

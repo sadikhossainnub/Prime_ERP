@@ -11,11 +11,11 @@ export default function TabLayout() {
       initialRouteName="dashboard"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#4f46e5', // primary-500
-        tabBarInactiveTintColor: '#6b7280', // gray-500
+        tabBarActiveTintColor: '#00BCD4', // tint color
+        tabBarInactiveTintColor: '#808080', // tabIconDefault
         tabBarStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#1f2937' : '#ffffff', // gray-800 or white
-          borderTopColor: colorScheme === 'dark' ? '#374151' : '#e5e7eb', // gray-700 or gray-200
+          backgroundColor: colorScheme === 'dark' ? '#1C1C1E' : '#ffffff', // background color
+          borderTopColor: colorScheme === 'dark' ? '#374151' : '#e5e7eb', // This can remain, or be updated if a specific border color is desired for dark theme
         },
       }}
     >

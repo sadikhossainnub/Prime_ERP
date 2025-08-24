@@ -9,7 +9,7 @@ import {
   ViewStyle
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
-import { apiRequest } from '../../services/api';
+import { apiMethodRequest, apiRequest } from '../../services/api';
 import { debounce } from '../../utils/debounce';
 
 interface LinkFieldProps {
@@ -67,7 +67,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
       } else if (doctype !== 'UOM') {
         // For other doctypes (not Customer, Item, or UOM), try to get the title field
         try {
-          const titleRes = await apiRequest(`method/frappe.desk.search.get_title_field`, {
+          const titleRes = await apiMethodRequest(`frappe.desk.search.get_title_field`, {
             params: { doctype },
           });
           if (titleRes.message) {
@@ -150,6 +150,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
       fetchSelectedOption();
     } else {
       setSelectedOption(null);
+      setButtonText(placeholder);
     }
   }, [value, doctype]);
 

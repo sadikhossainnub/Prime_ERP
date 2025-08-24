@@ -36,7 +36,8 @@ const CustomerListScreen = () => {
     const fetchCustomers = async () => {
       try {
         const response = await apiRequest('Customer?fields=["name", "customer_name"]');
-        setCustomers(response.data);
+        const sortedCustomers = response.data.sort((a: Customer, b: Customer) => b.name.localeCompare(a.name));
+        setCustomers(sortedCustomers);
       } catch (error) {
         console.error('Failed to fetch customers:', error);
       }

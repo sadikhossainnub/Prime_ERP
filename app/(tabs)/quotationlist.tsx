@@ -45,7 +45,8 @@ const QuotationListScreen = () => {
         ]);
         const endpoint = `Quotation?fields=${encodeURIComponent(fields)}`;
         const response = await apiRequest(endpoint);
-        setQuotations(response.data);
+        const sortedQuotations = response.data.sort((a: Quotation, b: Quotation) => b.name.localeCompare(a.name));
+        setQuotations(sortedQuotations);
       } catch (error) {
         console.error('Failed to fetch quotations:', error);
         Alert.alert('Error', 'Failed to fetch quotations. Please check your connection and try again.');

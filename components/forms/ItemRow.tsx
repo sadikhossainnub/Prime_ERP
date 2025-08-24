@@ -12,7 +12,6 @@ export interface ItemRowData {
   rate?: number;
   amount?: number;
   rate_fetched?: boolean;
-  warehouse?: string;
 }
 
 interface ItemRowProps {
@@ -21,7 +20,6 @@ interface ItemRowProps {
   onItemChange: (index: number, field: keyof ItemRowData, value: any) => void;
   onRemove: (index: number) => void;
   showRemoveButton?: boolean;
-  showWarehouseField?: boolean;
 }
 
 const ItemRow: React.FC<ItemRowProps> = ({
@@ -30,7 +28,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
   onItemChange,
   onRemove,
   showRemoveButton = true,
-  showWarehouseField = true
 }) => {
   const themedStyles = useThemedStyles();
 
@@ -148,21 +145,6 @@ const ItemRow: React.FC<ItemRowProps> = ({
           />
         </View>
       </View>
-
-      {showWarehouseField && (
-        <View style={themedStyles.row}>
-          <View style={themedStyles.fieldContainer}>
-            <Text style={themedStyles.label}>Warehouse</Text>
-            <LinkField
-              doctype="Warehouse"
-              fieldname="warehouse"
-              value={item.warehouse || ''}
-              onChangeValue={(value: string) => handleFieldChange('warehouse', value)}
-              placeholder="Select Warehouse"
-            />
-          </View>
-        </View>
-      )}
     </View>
   );
 };

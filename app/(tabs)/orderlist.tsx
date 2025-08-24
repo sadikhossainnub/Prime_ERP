@@ -35,7 +35,9 @@ const OrderListScreen = () => {
     const fetchOrders = async () => {
       try {
         const response = await apiRequest('Sales Order?fields=["name", "customer_name", "status"]');
-        setOrders(response.data);
+        // Sort orders by name in descending order
+        const sortedOrders = response.data.sort((a: Order, b: Order) => b.name.localeCompare(a.name));
+        setOrders(sortedOrders);
       } catch (error) {
         console.error('Failed to fetch orders:', error);
       }

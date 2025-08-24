@@ -89,35 +89,38 @@ const LinkField: React.FC<LinkFieldProps> = ({
         limit_page_length: 999999, // Remove API limit
       };
 
-      let allFilters: (string[] | (string[] | 'or')[])[] = propFilters ? [...propFilters] : [];
+      const allFilters: { fieldname: string; operator: string; value: any }[] = [];
 
-      if (query.trim()) {
-        const searchQuery = `%${query.trim()}%`;
-        const searchConditions: string[][] = [
-          ['name', 'like', searchQuery]
-        ];
-
-        // Only add search conditions for existing display fields
-        if (displayField !== 'name' && fieldsToFetch.includes(displayField)) {
-          searchConditions.push([displayField, 'like', searchQuery]);
-        }
-        
-        if (searchConditions.length > 0) {
-          if (searchConditions.length === 1) {
-            allFilters.push(searchConditions[0]);
+      // Convert propFilters to the new object format.
+      if (propFilters) {
+        propFilters.forEach(filter => {
+          if (
+            Array.isArray(filter) &&
+            filter.length === 3 &&
+            typeof filter[0] === 'string' &&
+            typeof filter[1] === 'string'
+          ) {
+            allFilters.push({
+              fieldname: filter[0],
+              operator: filter[1],
+              value: filter[2],
+            });
           } else {
-            const combinedOrConditions: (string[] | 'or')[] = [];
-            for (let i = 0; i < searchConditions.length; i++) {
-              combinedOrConditions.push(searchConditions[i]);
-              if (i < searchConditions.length - 1) {
-                combinedOrConditions.push('or');
-              }
-            }
-            allFilters.push(combinedOrConditions);
+            console.warn('LinkField: Ignoring complex filter format:', filter);
           }
-        }
+        });
       }
-      
+
+      // Add the search term as a 'like' filter, which is the safe way for search bars.
+      if (query.trim()) {
+        allFilters.push({
+          fieldname: displayField,
+          operator: 'like',
+          value: `%${query.trim()}%`,
+        });
+      }
+
+      // If we have any filters, stringify them for the request.
       if (allFilters.length > 0) {
         params.filters = JSON.stringify(allFilters);
       }
@@ -181,11 +184,15 @@ const LinkField: React.FC<LinkFieldProps> = ({
 
   const getDisplayText = () => {
     if (!value) return placeholder;
-    
+
     if (selectedOption) {
-      return selectedOption.label || selectedOption.name;
+      const { label, name } = selectedOption;
+      if (label && label !== name) {
+        return `${label} (${name})`;
+      }
+      return name;
     }
-    
+
     return value;
   };
 
@@ -203,7 +210,11 @@ const LinkField: React.FC<LinkFieldProps> = ({
             !editable ? styles.inputDisabled : {},
           ]}>
             <Text style={styles.inputText}>
-              {(selectedItem && (selectedItem.label || selectedItem.name)) || buttonText}
+              {(selectedItem &&
+                (selectedItem.label && selectedItem.label !== selectedItem.name
+                  ? `${selectedItem.label} (${selectedItem.name})`
+                  : selectedItem.name)) ||
+                buttonText}
             </Text>
             <Ionicons name={isOpened ? "chevron-up" : "chevron-down"} style={styles.dropdownIcon} />
           </View>
@@ -211,7 +222,7 @@ const LinkField: React.FC<LinkFieldProps> = ({
         renderItem={(item, index, isSelected) => (
           <View style={[styles.rowStyle, isSelected && styles.rowSelected]}>
             <Text style={[styles.rowTextStyle, isSelected && styles.rowTextSelected]}>
-              {item.label ? `${item.name} - ${item.label}` : item.name}
+              {item.label && item.label !== item.name ? `${item.label} (${item.name})` : item.name}
             </Text>
           </View>
         )}

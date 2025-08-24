@@ -35,7 +35,8 @@ const ItemListScreen = () => {
     const fetchItems = async () => {
       try {
         const response = await apiRequest('Item?fields=["name", "item_code", "description"]');
-        setItems(response.data);
+        const sortedItems = response.data.sort((a: Item, b: Item) => b.name.localeCompare(a.name));
+        setItems(sortedItems);
       } catch (error) {
         console.error('Failed to fetch items:', error);
       }

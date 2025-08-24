@@ -78,7 +78,6 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
         uom: '',
         rate: 0,
         amount: 0,
-        warehouse: '',
       }
       ]);
     }
@@ -210,7 +209,6 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
           uom: item.uom,
           rate: item.rate,
           amount: item.amount,
-          warehouse: item.warehouse,
         }))
       };
 
@@ -376,7 +374,6 @@ const QuotationForm: React.FC<QuotationFormProps> = ({
           onItemsChange={handleItemsChange}
           editable={!isViewMode}
           showTotals={true}
-          showWarehouseField={false}
         />
         {errors['items'] && <Text style={styles.errorText}>{errors['items']}</Text>}
       </View>

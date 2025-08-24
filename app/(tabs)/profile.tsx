@@ -1,5 +1,6 @@
 import { ThemedText } from '@/components/ThemedText';
 import { BASE_URL } from '@/constants/config';
+import { useColorScheme } from '@/hooks/useColorScheme'; // Import useColorScheme
 import api, { setSid } from '@/services/api';
 import { UserProfile } from '@/services/profile';
 import * as SecureStore from 'expo-secure-store'; // Import SecureStore
@@ -7,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Appearance, // Import Appearance
   Image,
   RefreshControl,
   ScrollView,
@@ -25,6 +27,8 @@ export default function ProfileScreen() {
   const [error, setError] = useState<string | null>(null);
   const { logout, user } = useAuth();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const colorScheme = useColorScheme(); // Get current color scheme
+  const [isDarkModeEnabled, setIsDarkModeEnabled] = useState(colorScheme === 'dark'); // State for dark mode toggle
 
   useEffect(() => {
     const BIOMETRIC_PREFERENCE_KEY = 'prime_erp_biometric_preference';
@@ -34,9 +38,24 @@ export default function ProfileScreen() {
       setBiometricEnabled(biometricPreference === 'true');
     };
     checkBiometricStatus();
-  }, []);
 
-  const BIOMETRIC_PREFERENCE_KEY = 'prime_erp_biometric_preference'; // Define here as well for handleBiometricToggle
+    // Load dark mode preference
+    const loadDarkModePreference = async () => {
+      const storedPreference = await SecureStore.getItemAsync(DARK_MODE_PREFERENCE_KEY);
+      if (storedPreference !== null) {
+        const isEnabled = storedPreference === 'true';
+        setIsDarkModeEnabled(isEnabled);
+        Appearance.setColorScheme(isEnabled ? 'dark' : 'light');
+      } else {
+        // If no preference is stored, set the switch to match the system theme
+        setIsDarkModeEnabled(colorScheme === 'dark');
+      }
+    };
+    loadDarkModePreference();
+  }, [colorScheme]);
+
+  const BIOMETRIC_PREFERENCE_KEY = 'prime_erp_biometric_preference';
+  const DARK_MODE_PREFERENCE_KEY = 'prime_erp_dark_mode_preference'; // Define key for dark mode
 
   const handleBiometricToggle = async (value: boolean) => {
     setBiometricEnabled(value);
@@ -56,6 +75,14 @@ export default function ProfileScreen() {
       await setSid(null); // Clear SID from SecureStore to prevent automatic login
       Alert.alert('Biometric login disabled.');
     }
+  };
+
+  const handleDarkModeToggle = async (value: boolean) => {
+    setIsDarkModeEnabled(value);
+    const newColorScheme = value ? 'dark' : 'light';
+    Appearance.setColorScheme(newColorScheme); // Set the color scheme
+    await SecureStore.setItemAsync(DARK_MODE_PREFERENCE_KEY, String(value)); // Store preference
+    Alert.alert('Theme Changed', `Dark mode is now ${value ? 'enabled' : 'disabled'}.`);
   };
 
  const fetchProfile = async () => {
@@ -325,6 +352,30 @@ export default function ProfileScreen() {
               onValueChange={handleBiometricToggle}
               trackColor={{ false: '#767577', true: '#00BCD4' }}
               thumbColor={biometricEnabled ? '#00BCD4' : '#E0E0E0'}
+            />
+          </View>
+        </View>
+      </View>
+
+      {/* Appearance Section */}
+      <View style={styles.section}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Appearance
+        </ThemedText>
+        <View style={styles.card}>
+          <View style={styles.infoRow}>
+            <Icon name="theme-light-dark" size={20} color="#B0B0B0" />
+            <View style={styles.infoContent}>
+              <ThemedText style={styles.infoLabel}>Dark Mode</ThemedText>
+              <ThemedText style={styles.infoValue}>
+                Toggle dark mode on or off
+              </ThemedText>
+            </View>
+            <Switch
+              value={isDarkModeEnabled}
+              onValueChange={handleDarkModeToggle}
+              trackColor={{ false: '#767577', true: '#00BCD4' }}
+              thumbColor={isDarkModeEnabled ? '#00BCD4' : '#E0E0E0'}
             />
           </View>
         </View>

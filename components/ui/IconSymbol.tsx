@@ -23,6 +23,7 @@ const MAPPING = {
   'users': 'group',
   'dollar-sign': 'currency-bdt',
   'briefcase': 'business-center',
+  'banknote.fill': 'attach_money',
 };
 
 /**

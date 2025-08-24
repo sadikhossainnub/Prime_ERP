@@ -15,7 +15,7 @@ const modules: { name: string; label: string; icon: React.ComponentProps<typeof 
   { name: "Selling", label: "Selling", icon: "cart" },
   { name: "Stock", label: "Stock", icon: "archive" },
   { name: "CRM", label: "CRM", icon: "users" },
-  { name: "Accounts", label: "Accounts", icon: "dollar-sign" },
+  { name: "Accounts", label: "Accounts", icon: "banknote.fill" },
   { name: "HRM", label: "HRM", icon: "briefcase" },
 ];
 

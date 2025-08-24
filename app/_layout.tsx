@@ -1,5 +1,7 @@
 import { checkForUpdate } from '@/services/update';
-import { Stack } from 'expo-router'; // Removed useRouter
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useFonts } from 'expo-font';
+import { Stack, useRootNavigationState, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { startLocationTracking, stopLocationTracking } from '../services/locationTracking';
@@ -11,6 +13,8 @@ function RootLayoutNav() {
   const { user, isLoading } = useAuth();
   const [appLoading, setAppLoading] = useState(true);
   const [blockedReason, setBlockedReason] = useState<string | null>(null);
+  const rootNavigationState = useRootNavigationState();
+  const router = useRouter();
 
   const runChecks = useCallback(async () => {
     setAppLoading(true);
@@ -50,6 +54,7 @@ function RootLayoutNav() {
   }, [user, isLoading, blockedReason]);
 
   console.log('RootLayoutNav - isLoading:', isLoading, 'user:', user);
+  console.log('RootLayoutNav - rootNavigationState:', rootNavigationState);
 
   if (appLoading || isLoading) { // Combine appLoading and AuthContext isLoading
     return (
@@ -73,7 +78,7 @@ function RootLayoutNav() {
     );
   } else {
     return (
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false }} initialRouteName="login">
         {/* Unauthenticated routes */}
         <Stack.Screen name="login" />
         <Stack.Screen name="forgetpassword" />
@@ -83,6 +88,17 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const [loaded, error] = useFonts({
+    ...MaterialIcons.font,
+  });
+
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
+
+  if (!loaded) {
+    return null;
+  }
   return (
     <AuthProvider>
       <RootLayoutNav />

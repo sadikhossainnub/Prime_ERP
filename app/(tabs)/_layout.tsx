@@ -108,6 +108,25 @@ export default function TabLayout() {
           href: null, // Hide from tab bar
         }}
       />
+    <Tabs.Screen
+        name="notfound"
+        options={{
+          title: 'Not Found',
+          href: null, // Hide from tab bar
+        }}
+      />
     </Tabs>
+    <Tabs.Screen
+        name="404"
+        options={{
+          title: '404 Not Found',
+          component: () => (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 24 }}>404 - Page Not Found</Text>
+              <Text style={{ textAlign: 'center' }}>The page you are looking for does not exist.</Text>
+            </View>
+          ),
+        }}
+      />
   );
 }

@@ -1,7 +1,7 @@
 {
   "name": "Prime ERP",
   "slug": "Prime_ERP",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@react-navigation/bottom-tabs": "^7.3.10",

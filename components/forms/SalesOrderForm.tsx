@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { apiRequest } from '../../services/api';
 import { Doctype } from '../../types/doctypes';
@@ -84,7 +84,7 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
         },
       ]);
     }
-  }, [initialData]);
+  }, []);
 
   const fetchFields = () => {
     setFieldsLoading(true);
@@ -250,13 +250,13 @@ const SalesOrderForm: React.FC<SalesOrderFormProps> = ({
     }
   };
 
-  const updateField = (fieldname: string, value: any) => {
+  const updateField = useCallback((fieldname: string, value: any) => {
     setFormData(prev => ({ ...prev, [fieldname]: value }));
     
     if (errors[fieldname]) {
       setErrors(prev => ({ ...prev, [fieldname]: '' }));
     }
-  };
+  }, [errors]);
 
   const handleItemsChange = (updatedItems: ItemRowData[]) => {
     setItems(updatedItems);

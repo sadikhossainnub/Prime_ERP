@@ -72,14 +72,14 @@ function RootLayoutNav() {
   if (user) {
     return (
       <Stack screenOptions={{ headerShown: false }}>
-        {/* Authenticated routes */}
         <Stack.Screen name="(tabs)" />
       </Stack>
     );
   } else {
     return (
-      <Stack screenOptions={{ headerShown: false }} initialRouteName="login">
+      <Stack screenOptions={{ headerShown: false }}>
         {/* Unauthenticated routes */}
+        <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="forgetpassword" />
       </Stack>

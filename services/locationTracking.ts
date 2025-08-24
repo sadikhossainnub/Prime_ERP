@@ -75,7 +75,7 @@ export const startLocationTracking = async (): Promise<boolean> => {
   const credentials = await getLocationTrackingCredentials();
   if (!credentials) {
     console.warn('No location tracking credentials found. Please log in first.');
-    alert('Please log in to enable location tracking.');
+    // alert('Please log in to enable location tracking.');
     return false;
   }
 
@@ -92,11 +92,11 @@ export const startLocationTracking = async (): Promise<boolean> => {
       return true;
     } else {
       console.warn('Background location permission not granted.');
-      alert('Background location permission is required for full functionality.');
+      // alert('Background location permission is required for full functionality.');
     }
   } else {
     console.warn('Foreground location permission not granted.');
-    alert('Foreground location permission is required to track location.');
+    // alert('Foreground location permission is required to track location.');
   }
   return false;
 };

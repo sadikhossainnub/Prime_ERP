@@ -33,7 +33,7 @@ const useThemedStyles = () => {
     'tint'
   );
   const textColor = useThemeColor(
-    { light: '#000000', dark: '#000000' },
+    { light: '#FFFFFF', dark: '#000000' },
     'text'
   );
   const shadowColor = useThemeColor(

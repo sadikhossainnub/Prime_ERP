@@ -155,8 +155,11 @@ const LinkField: React.FC<LinkFieldProps> = ({
   }, [value, doctype]);
 
   useEffect(() => {
-    setButtonText(getDisplayText());
-  }, [selectedOption, value, placeholder]);
+    const newButtonText = getDisplayText();
+    if (newButtonText !== buttonText) {
+      setButtonText(newButtonText);
+    }
+  }, [selectedOption, value, placeholder, buttonText]);
 
   const fetchSelectedOption = async () => {
     if (!value || !doctype) return;

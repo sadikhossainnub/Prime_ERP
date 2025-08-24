@@ -4,7 +4,7 @@ import { BASE_URL } from '@/constants/config';
 import { getSid, setSid } from '@/services/api';
 import axios from 'axios';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Link, Redirect } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store'; // Import SecureStore
 import React, { useEffect, useState } from 'react';
 import {
@@ -28,6 +28,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const { login, isLoading, user, setIsLoading, setUser } = useAuth();
   const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkBiometricStatus = async () => {
@@ -99,9 +100,6 @@ export default function LoginScreen() {
     );
   }
 
-  if (user) {
-    return <Redirect href={'/(tabs)' as any} />;
-  }
 
   return (
     <KeyboardAvoidingView

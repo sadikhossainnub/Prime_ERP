@@ -32,18 +32,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const router = useRouter();
   const logout = React.useCallback(async () => {
-    setUser(null);
-    setIsLoading(false);
-    (async () => {
-      try {
-        await api.logout();
-        await AsyncStorage.removeItem('LOCATION_TRACKING_CREDENTIALS');
-        console.log('Background cleanup successful.');
-        router.replace('/login'); // Navigate to login screen after logout
-      } catch (error) {
-        console.error('Background logout cleanup failed:', error);
-      }
-    })();
+    try {
+      await api.logout();
+    } catch (error) {
+      console.error('API logout failed:', error);
+    } finally {
+      await setSid(null);
+      await AsyncStorage.removeItem('LOCATION_TRACKING_CREDENTIALS');
+      setUser(null);
+      router.replace('/login');
+    }
   }, [router]);
 
   logoutRef.current = logout;

@@ -1,6 +1,6 @@
 import { apiRequest } from '@/services/api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import SalesOrderForm from '../../components/forms/SalesOrderForm';
 
@@ -64,13 +64,15 @@ const SalesOrderFormScreen = () => {
     );
   }
 
+  const memoizedInitialData = useMemo(() => initialData, [initialData]);
+
   return (
     <View style={styles.container}>
       <SalesOrderForm
         onSuccess={handleSuccess}
         onCancel={handleCancel}
         mode={mode as 'create' | 'edit' | 'view'}
-        initialData={initialData}
+        initialData={memoizedInitialData}
       />
     </View>
   );

@@ -5,9 +5,9 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useRouter } from "expo-router";
 import React from 'react';
 import {
-  FlatList,
-  StyleSheet,
-  TouchableOpacity
+    FlatList,
+    StyleSheet,
+    TouchableOpacity
 } from "react-native";
 
 interface Module {
@@ -18,25 +18,19 @@ interface Module {
 }
 
 const modules: Module[] = [
-  { name: "Quotations", label: "Quotations", icon: "paperplane.fill" },
-  { name: "Orders", label: "Orders", icon: "cart" },
-  { name: "Customers", label: "Customers", icon: "users" },
-  { name: "Items", label: "Items", icon: "archive" },
-  { name: "Delivery Note", label: "Delivery Note", icon: "archive"},
-  { name: "Payment Entry", label: "Payment Entry", icon: "banknote.fill"},
+  { name: "Payment Entry", label: "Payment Entry", icon: "banknote.fill" },
 ];
 
-const SellingModuleMenu = () => {
+const AccountModuleMenu = () => {
   const router = useRouter();
   const backgroundColor = useThemeColor({}, "sellingCardBackground");
   const shadowColor = useThemeColor({}, "sellingCardShadow");
   const iconColor = useThemeColor({}, "sellingCardIcon");
 
-  console.log("SellingModuleMenu component rendered");
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title" style={styles.title}>
-        Selling
+        Accounts
       </ThemedText>
       <FlatList
         data={modules.filter(item => !item.hidden)}
@@ -50,21 +44,6 @@ const SellingModuleMenu = () => {
             }]}
             onPress={() => {
               switch (item.name) {
-                case "Quotations":
-                  router.push("/(tabs)/quotationlist");
-                  break;
-                case "Orders":
-                  router.push("/(tabs)/orderlist");
-                  break;
-                case "Customers":
-                  router.push("/(tabs)/customerlist");
-                  break;
-                case "Items":
-                  router.push("/(tabs)/itemlist");
-                  break;
-                case "Delivery Note":
-                  router.push("/(tabs)/deliverynotelist");
-                  break;
                 case "Payment Entry":
                   router.push("/(tabs)/paymententrylist");
                   break;
@@ -112,4 +91,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SellingModuleMenu;
+export default AccountModuleMenu;

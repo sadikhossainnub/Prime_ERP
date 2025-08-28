@@ -121,7 +121,7 @@ export default function DashboardScreen() {
           color: (opacity = 1) => `rgba(74, 144, 226, ${opacity})`,
           labelColor: (opacity = 1) => textColor,
         }}
-        accessor={"value"}
+        accessor={"population"}
         backgroundColor={"transparent"}
         paddingLeft={"10"}
         absolute

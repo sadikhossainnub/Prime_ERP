@@ -1,20 +1,62 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "jsx": "react-native",
-    "strict": true,
+    "target": "ES2020",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "rootDir": "./",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "baseUrl": "./",
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@/app/*": [
+        "app/*"
+      ],
+      "@/assets/*": [
+        "assets/*"
+      ],
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/constants/*": [
+        "constants/*"
+      ],
+      "@/hooks/*": [
+        "hooks/*"
+      ],
+      "@/navigation/*": [
+        "navigation/*"
+      ],
+      "@/services/*": [
+        "services/*"
+      ],
+      "@/utils/*": [
+        "utils/*"
       ]
     },
-    "typeRoots": ["./node_modules/@types", "./types"]
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "resolvePackageJsonExports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "app/**/*.tsx",
+    "app/**/*.ts",
+    "components/**/*.tsx",
+    "components/**/*.ts",
+    "constants/**/*.ts",
+    "services/**/*.ts",
+    "types/**/*.ts",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "types/**/*.d.ts"
-  ]
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "extends": "expo/tsconfig.base"
 }

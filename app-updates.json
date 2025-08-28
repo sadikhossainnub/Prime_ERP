@@ -1,5 +1,5 @@
 {
-  "latest_version": "1.0.0",
-  "apk_url": "https://primetechbd.xyz/uploads/App/primeerp.apk",
-  "release_notes": "Initial release with bug fixes and performance improvements."
+  "latest_version": "1.0.1",
+  "apk_url": "https://docs.google.com/uc?export=download&id=1LkL5hNB5j-bV-g9t5jFp-F-M9E8d4C3b",
+  "release_notes": "The app now fetches updates from Google Drive. This release includes improvements to the update mechanism and other minor bug fixes."
 }

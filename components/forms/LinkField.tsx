@@ -120,9 +120,10 @@ const LinkField: React.FC<LinkFieldProps> = ({
         });
       }
 
-      // If we have any filters, stringify them for the request.
+      // If we have any filters, convert them to the list format and stringify for the request.
       if (allFilters.length > 0) {
-        params.filters = JSON.stringify(allFilters);
+        const filtersAsList = allFilters.map(f => [f.fieldname, f.operator, f.value]);
+        params.filters = JSON.stringify(filtersAsList);
       }
 
       const data = await apiRequest(`resource/${encodeURIComponent(doctype)}`, {
@@ -146,6 +147,18 @@ const LinkField: React.FC<LinkFieldProps> = ({
       setLoading(false);
     }
   }, [doctype, propFilters]);
+
+  const debouncedFetchOptions = useCallback(
+    debounce((query: string) => fetchOptions(query), 500),
+    [fetchOptions]
+  );
+
+  useEffect(() => {
+    // Cleanup function to cancel any pending fetches
+    return () => {
+      debouncedFetchOptions.cancel();
+    };
+  }, [debouncedFetchOptions]);
 
   // Fetch selected option details when value changes
   useEffect(() => {
@@ -234,8 +247,8 @@ const LinkField: React.FC<LinkFieldProps> = ({
         searchPlaceHolder={'Search here'}
         searchPlaceHolderColor={'#999'}
         renderSearchInputLeftIcon={() => <Ionicons name="search" style={styles.searchIcon} />}
-        onFocus={() => fetchOptions('')}
-        onChangeSearchInputText={debounce((text: string) => fetchOptions(text), 500)}
+        onFocus={() => debouncedFetchOptions('')}
+        onChangeSearchInputText={debouncedFetchOptions}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>

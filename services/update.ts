@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { Alert, Platform } from 'react-native';
 
-const UPDATE_URL = "https://primetechbd.xyz/wp-content/uploads/App/app-updates.json";
+const UPDATE_URL = "https://docs.google.com/uc?export=download&id=1q6KW24v02h3g24JzOr3E8v-E2Y2kXJmC";
 
 // A more robust version comparison function
 const compareVersions = (v1: string, v2: string) => {

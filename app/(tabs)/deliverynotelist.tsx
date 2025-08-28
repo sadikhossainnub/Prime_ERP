@@ -8,18 +8,18 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-interface Customer {
+interface DeliveryNote {
   name: string;
   customer_name: string;
   grand_total: number;
   status: string;
 }
 
-const CustomerListScreen = () => {
+const DeliveryNoteListScreen = () => {
   const router = useRouter();
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [filteredDeliveryNotes, setFilteredDeliveryNotes] = useState<DeliveryNote[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [filters, setFilters] = useState<any>({});
 
@@ -34,7 +34,7 @@ const CustomerListScreen = () => {
   };
 
   useEffect(() => {
-    const fetchCustomers = async () => {
+    const fetchDeliveryNotes = async () => {
       try {
         const formattedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
           if (value) {
@@ -46,14 +46,14 @@ const CustomerListScreen = () => {
             } else if (key === 'status') {
               fieldName = 'status';
             }
-            acc.push(['Customer', fieldName, operator, value]);
+            acc.push(['Delivery Note', fieldName, operator, value]);
           }
           return acc;
         }, [] as Array<[string, string, string, any]>);
 
         const apiOptions: AxiosRequestConfig = {
           params: {
-            fields: '["name", "customer_name"]',
+            fields: '["name", "customer_name", "grand_total", "status"]',
             order_by: 'creation desc',
           },
         };
@@ -62,40 +62,40 @@ const CustomerListScreen = () => {
           apiOptions.params.filters = JSON.stringify(formattedFilters);
         }
 
-        const response = await apiRequest('Customer', apiOptions);
-        setCustomers(response.data);
+        const response = await apiRequest('Delivery Note', apiOptions);
+        setDeliveryNotes(response.data);
       } catch (error) {
-        console.error('Failed to fetch customers:', error);
+        console.error('Failed to fetch delivery notes:', error);
       }
     };
 
-    fetchCustomers();
+    fetchDeliveryNotes();
   }, [filters]);
 
   useEffect(() => {
-    let filtered = customers;
+    let filtered = deliveryNotes;
 
     if (searchQuery) {
-      filtered = filtered.filter((customer) =>
-        customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.customer_name.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter((note) =>
+        note.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        note.customer_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (filters.customerName) {
-      filtered = filtered.filter((customer) =>
-        customer.customer_name.toLowerCase().includes(filters.customerName.toLowerCase())
+      filtered = filtered.filter((note) =>
+        note.customer_name.toLowerCase().includes(filters.customerName.toLowerCase())
       );
     }
 
     if (filters.status) {
-      filtered = filtered.filter((customer) =>
-        customer.status.toLowerCase() === filters.status.toLowerCase()
+      filtered = filtered.filter((note) =>
+        note.status.toLowerCase() === filters.status.toLowerCase()
       );
     }
 
-    setFilteredCustomers(filtered);
-  }, [searchQuery, customers, filters]);
+    setFilteredDeliveryNotes(filtered);
+  }, [searchQuery, deliveryNotes, filters]);
 
   const styles = getStyles({
     background: backgroundColor,
@@ -108,18 +108,18 @@ const CustomerListScreen = () => {
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Customer List</Text>
+        <Text style={styles.title}>Delivery Note List</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => router.push('/(tabs)/customerform')}
+          onPress={() => router.push('/(tabs)/deliverynoteform')}
         >
-          <Text style={styles.addButtonText}>+ Add Customer</Text>
+          <Text style={styles.addButtonText}>+ Add Delivery Note</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search Customers"
+          placeholder="Search Delivery Notes"
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor={iconColor}
@@ -134,10 +134,10 @@ const CustomerListScreen = () => {
         onApply={handleApplyFilters}
       />
       <FlatList
-        data={filteredCustomers}
+        data={filteredDeliveryNotes}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => router.push({ pathname: '/(tabs)/customerform', params: { name: item.name, mode: 'view' } })}>
+          <TouchableOpacity onPress={() => router.push({ pathname: '/(tabs)/deliverynoteform', params: { name: item.name, mode: 'view' } })}>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Name: {item.name}</Text>
               <Text style={styles.cardText}>Customer: {item.customer_name}</Text>
@@ -233,4 +233,4 @@ const getStyles = (theme: {
     },
   });
 
-export default CustomerListScreen;
+export default DeliveryNoteListScreen;

@@ -20,7 +20,7 @@ export const getDashboardData = async () => {
     getDocCount("Lead"),
     getDocCount("Opportunity"),
     getDocCount("Quotation"),
-    apiRequest("Sales Invoice"),
+    apiRequest(`Sales Invoice?fields=["items.item_name","items.amount"]`),
   ]);
 
   // --- KPI values ---
@@ -35,9 +35,13 @@ export const getDashboardData = async () => {
 
   // --- Pie chart data (top items) ---
   const itemSales: Record<string, number> = {};
-  salesInvoiceItems.data.forEach((item: any) => {
-    if (item.item_name) {
-      itemSales[item.item_name] = (itemSales[item.item_name] || 0) + item.amount;
+  salesInvoiceItems.data.forEach((invoice: any) => {
+    if (invoice.items && Array.isArray(invoice.items)) {
+      invoice.items.forEach((item: any) => {
+        if (item.item_name) {
+          itemSales[item.item_name] = (itemSales[item.item_name] || 0) + item.amount;
+        }
+      });
     }
   });
 
@@ -46,9 +50,9 @@ export const getDashboardData = async () => {
     .slice(0, 5);
 
   const topItemsColors = ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff"];
-  const topItems = sortedItems.map(([name, value], index) => ({
+  const topItems = sortedItems.map(([name, population], index) => ({
     name,
-    value,
+    population,
     color: topItemsColors[index % topItemsColors.length],
     legendFontColor: "#333",
     legendFontSize: 12,

@@ -32,6 +32,9 @@ export default function ModuleScreen() {
     if (moduleName === "Selling") {
       console.log("Navigating to /(tabs)/sellingmodulemenu");
       router.push("/(tabs)/sellingmodulemenu");
+    } else if (moduleName === "Accounts") {
+      console.log("Navigating to /(tabs)/accountmodulemenu");
+      router.push("/(tabs)/accountmodulemenu");
     } else {
       setSelectedModule(moduleName);
     }

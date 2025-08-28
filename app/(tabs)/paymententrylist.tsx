@@ -8,18 +8,19 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-interface Customer {
+interface PaymentEntry {
   name: string;
-  customer_name: string;
-  grand_total: number;
-  status: string;
+  party_type: string;
+  party: string;
+  paid_amount: number;
+  docstatus: number;
 }
 
-const CustomerListScreen = () => {
+const PaymentEntryListScreen = () => {
   const router = useRouter();
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [paymentEntries, setPaymentEntries] = useState<PaymentEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [filteredPaymentEntries, setFilteredPaymentEntries] = useState<PaymentEntry[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [filters, setFilters] = useState<any>({});
 
@@ -34,26 +35,27 @@ const CustomerListScreen = () => {
   };
 
   useEffect(() => {
-    const fetchCustomers = async () => {
+    const fetchPaymentEntries = async () => {
       try {
         const formattedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
           if (value) {
             let fieldName = key;
             let operator = 'like'; // Default operator
 
-            if (key === 'customerName') {
-              fieldName = 'customer_name';
-            } else if (key === 'status') {
-              fieldName = 'status';
+            if (key === 'party') {
+              fieldName = 'party';
+            } else if (key === 'docstatus') {
+              fieldName = 'docstatus';
+              operator = '=';
             }
-            acc.push(['Customer', fieldName, operator, value]);
+            acc.push(['Payment Entry', fieldName, operator, value]);
           }
           return acc;
         }, [] as Array<[string, string, string, any]>);
 
         const apiOptions: AxiosRequestConfig = {
           params: {
-            fields: '["name", "customer_name"]',
+            fields: '["name", "party_type", "party", "paid_amount", "docstatus"]',
             order_by: 'creation desc',
           },
         };
@@ -62,40 +64,28 @@ const CustomerListScreen = () => {
           apiOptions.params.filters = JSON.stringify(formattedFilters);
         }
 
-        const response = await apiRequest('Customer', apiOptions);
-        setCustomers(response.data);
+        const response = await apiRequest('Payment Entry', apiOptions);
+        setPaymentEntries(response.data);
       } catch (error) {
-        console.error('Failed to fetch customers:', error);
+        console.error('Failed to fetch payment entries:', error);
       }
     };
 
-    fetchCustomers();
+    fetchPaymentEntries();
   }, [filters]);
 
   useEffect(() => {
-    let filtered = customers;
+    let filtered = paymentEntries;
 
     if (searchQuery) {
-      filtered = filtered.filter((customer) =>
-        customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.customer_name.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter((entry) =>
+        entry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.party.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    if (filters.customerName) {
-      filtered = filtered.filter((customer) =>
-        customer.customer_name.toLowerCase().includes(filters.customerName.toLowerCase())
-      );
-    }
-
-    if (filters.status) {
-      filtered = filtered.filter((customer) =>
-        customer.status.toLowerCase() === filters.status.toLowerCase()
-      );
-    }
-
-    setFilteredCustomers(filtered);
-  }, [searchQuery, customers, filters]);
+    setFilteredPaymentEntries(filtered);
+  }, [searchQuery, paymentEntries, filters]);
 
   const styles = getStyles({
     background: backgroundColor,
@@ -104,22 +94,29 @@ const CustomerListScreen = () => {
     tint: tintColor,
     icon: iconColor,
   });
+  
+  const getStatus = (docstatus: number) => {
+    if (docstatus === 0) return 'Draft';
+    if (docstatus === 1) return 'Submitted';
+    if (docstatus === 2) return 'Cancelled';
+    return 'Unknown';
+  }
 
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Customer List</Text>
+        <Text style={styles.title}>Payment Entry List</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => router.push('/(tabs)/customerform')}
+          onPress={() => router.push('/(tabs)/paymententryform')}
         >
-          <Text style={styles.addButtonText}>+ Add Customer</Text>
+          <Text style={styles.addButtonText}>+ Add Payment Entry</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search Customers"
+          placeholder="Search Payment Entries"
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor={iconColor}
@@ -134,16 +131,16 @@ const CustomerListScreen = () => {
         onApply={handleApplyFilters}
       />
       <FlatList
-        data={filteredCustomers}
+        data={filteredPaymentEntries}
         keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => router.push({ pathname: '/(tabs)/customerform', params: { name: item.name, mode: 'view' } })}>
+          <TouchableOpacity onPress={() => router.push({ pathname: '/(tabs)/paymententryform', params: { name: item.name, mode: 'view' } })}>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Name: {item.name}</Text>
-              <Text style={styles.cardText}>Customer: {item.customer_name}</Text>
-              <Text style={styles.cardText}>Total: {item.grand_total}</Text>
-              <Text style={[styles.cardText, styles.statusStyle, { color: item.status === 'Draft' ? 'gray' : item.status === 'Submitted' ? 'blue' : 'green' }]}>
-                Status: {item.status}</Text>
+              <Text style={styles.cardText}>Party: {item.party} ({item.party_type})</Text>
+              <Text style={styles.cardText}>Paid Amount: {item.paid_amount}</Text>
+              <Text style={[styles.cardText, styles.statusStyle, { color: item.docstatus === 0 ? 'gray' : item.docstatus === 1 ? 'blue' : 'red' }]}>
+                Status: {getStatus(item.docstatus)}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -233,4 +230,4 @@ const getStyles = (theme: {
     },
   });
 
-export default CustomerListScreen;
+export default PaymentEntryListScreen;

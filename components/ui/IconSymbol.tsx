@@ -24,6 +24,19 @@ const MAPPING = {
   'dollar-sign': 'currency-bdt',
   'briefcase': 'business-center',
   'banknote.fill': 'attach_money',
+  'plus': 'add', // Mapping for "plus" icon
+  'customers': 'group', // Mapping for "customers" icon, re-using 'group'
+  'items': 'inventory', // Mapping for "items" icon, re-using 'inventory'
+  'revenue': 'attach_money', // For total revenue
+  'calendar': 'calendar_today', // For "This Month"
+  'orders': 'description', // For "Orders" card
+  'quotes': 'receipt_long', // For "Quotes" card
+  'arrow.right': 'arrow_forward', // For navigation arrow
+  'chart.line.up': 'show_chart', // For positive trend, using show_chart
+  'checkmark.circle.fill': 'check_circle', // For completed status
+  'recent.activity.order': 'description', // For recent order activity
+  'recent.activity.quote': 'receipt_long', // For recent quote activity
+  'attention': 'info', // For attention needed icon
 };
 
 /**
